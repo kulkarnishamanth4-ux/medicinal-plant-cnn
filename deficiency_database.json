@@ -1,0 +1,130 @@
+{
+    "Healthy": {
+        "title": "Healthy Leaf Condition",
+        "nutrient": "Balanced Nutrients",
+        "description": "The leaf shows optimal chlorophyll concentration, vibrant green pigmentation, and healthy vascular structure with no significant visual signs of nutrient or vitamin deficiencies.",
+        "symptoms": [
+            "Uniform green leaf lamina",
+            "Intact leaf margins with no scorching",
+            "Smooth texture without mottling or chlorosis"
+        ],
+        "organic_remedies": [
+            "Maintain regular balanced organic watering schedule",
+            "Apply well-aged compost or vermicompost every 4-6 weeks",
+            "Ensure adequate sunlight exposure and well-draining soil"
+        ],
+        "preventive_care": "Periodically test soil pH (6.0 - 7.0 optimal for most medicinal plants) and mulch to preserve soil moisture."
+    },
+    "Nitrogen (N)": {
+        "title": "Nitrogen / Protein Deficiency",
+        "nutrient": "Nitrogen (N) & Amino Acids",
+        "description": "Nitrogen is essential for chlorophyll synthesis, protein formation, and vegetative growth. Deficiency causes uniform chlorosis (yellowing) starting on older leaves as nitrogen is mobile.",
+        "symptoms": [
+            "General pale green to yellowing across older lower leaves",
+            "Stunted plant growth and thinner stems",
+            "Early leaf drop in severe cases"
+        ],
+        "organic_remedies": [
+            "Apply Nitrogen-rich organic liquid fertilizers like Neem cake solution or Fish hydrolysate",
+            "Top-dress soil with well-rotted cow manure or vermicompost",
+            "Foliar spray with diluted seaweed extract (Kelp meal)"
+        ],
+        "preventive_care": "Incorporate nitrogen-fixing cover crops (pulse crops/legumes) in soil rotation."
+    },
+    "Phosphorus (P)": {
+        "title": "Phosphorus / ATP Energy Deficiency",
+        "nutrient": "Phosphorus (P)",
+        "description": "Phosphorus plays a crucial role in energy transfer (ATP), nucleic acid synthesis, root development, and flowering. Lack of phosphorus leads to anthocyanin accumulation, causing purpling or dark bronze leaves.",
+        "symptoms": [
+            "Reddish-purple or dark bronze discoloration on leaf undersides and margins",
+            "Delayed leaf emergence and poor root growth",
+            "Dull dark green foliage with delayed maturation"
+        ],
+        "organic_remedies": [
+            "Apply organic Bone Meal or Rock Phosphate to root zone",
+            "Incorporate composted poultry manure or wood ash into topsoil",
+            "Apply Mycorrhizal fungi inoculants to enhance phosphorus uptake"
+        ],
+        "preventive_care": "Maintain soil pH between 6.2 and 7.0, as acidic or alkaline extremes bind phosphorus."
+    },
+    "Potassium (K)": {
+        "title": "Potassium / Osmotic Balance Deficiency",
+        "nutrient": "Potassium (K) & Mineral Salts",
+        "description": "Potassium regulates stomatal opening, water uptake, enzyme activation, and disease resistance. Deficiency causes marginal necrosis (scorching along leaf edges) and curling.",
+        "symptoms": [
+            "Browning, scorching, and drying along leaf edges (marginal scorch)",
+            "Yellowing (chlorosis) progressing inward from leaf margins",
+            "Weak stems and high susceptibility to drought or pest stress"
+        ],
+        "organic_remedies": [
+            "Apply Potassium-rich Wood Ash or Kelp meal tea",
+            "Incorporate Banana peel tea or Greensand into soil mix",
+            "Drench soil with Potassium sulfate (organic certified)"
+        ],
+        "preventive_care": "Ensure adequate soil organic matter to prevent potassium leaching in sandy soils."
+    },
+    "Magnesium (Mg)": {
+        "title": "Magnesium / Chlorophyll Core Deficiency",
+        "nutrient": "Magnesium (Mg) [Chlorophyll Center Ion]",
+        "description": "Magnesium is the central atom of the chlorophyll molecule and acts as an enzyme activator. Deficiency results in classic interveinal chlorosis on mature leaves while veins remain green.",
+        "symptoms": [
+            "Interveinal chlorosis (yellowing between dark green veins) on mature foliage",
+            "Brittle, curled leaf edges in advanced stages",
+            "Reddish or pale yellow patches between leaf veins"
+        ],
+        "organic_remedies": [
+            "Apply Epsom Salt (Magnesium Sulfate) foliar spray: 1 tbsp per gallon of water",
+            "Drench soil with Dolomitic limestone (if soil pH is acidic)",
+            "Apply composted leaves and hardwood ash"
+        ],
+        "preventive_care": "Avoid excessive potassium or calcium fertilization which can block magnesium absorption."
+    },
+    "Iron (Fe)": {
+        "title": "Iron / Enzymatic Chlorosis Deficiency",
+        "nutrient": "Iron (Fe)",
+        "description": "Iron is required for electron transport, chlorophyll biosynthesis, and respiratory enzymes. Because iron is immobile, deficiency causes striking interveinal chlorosis on young emerging leaves.",
+        "symptoms": [
+            "Severe yellowing to near white interveinal chlorosis on young leaves",
+            "Vascular network (veins) remains sharply dark green",
+            "Stunted shoot tip development"
+        ],
+        "organic_remedies": [
+            "Apply Chelated Iron (Fe-EDDHA or Fe-DTPA) as a foliar spray or soil drench",
+            "Foliar spray with organic liquid iron kelp complex",
+            "Add elemental sulfur or acidic compost if high soil pH is immobilizing iron"
+        ],
+        "preventive_care": "Prevent over-watering and soil compaction which reduces root oxygenation and iron uptake."
+    },
+    "Calcium (Ca)": {
+        "title": "Calcium / Cell Wall Structure Deficiency",
+        "nutrient": "Calcium (Ca)",
+        "description": "Calcium is a structural component of plant cell walls and cell membranes. Immobile in plant tissues, deficiency manifests as distorted young leaves, tip burn, and localized tissue necrosis.",
+        "symptoms": [
+            "Hooked or distorted young growing leaf tips",
+            "Necrotic brown spots and tip burn on new growth",
+            "Weak plant structure and blossom end rot in fruiting medicinal plants"
+        ],
+        "organic_remedies": [
+            "Apply crushed eggshell tea or Gypsum (Calcium Sulfate)",
+            "Foliar spray with liquid calcium chloride solution",
+            "Incorporate Agricultural Lime or Bone Meal into root zone"
+        ],
+        "preventive_care": "Maintain steady, uniform irrigation schedules; fluctuating water levels disrupt calcium transport."
+    },
+    "Zinc (Zn)": {
+        "title": "Zinc / Auxin Enzyme Deficiency",
+        "nutrient": "Zinc (Zn)",
+        "description": "Zinc is essential for plant growth hormone (auxin) production, internode elongation, and protein metabolism. Deficiency results in mottled chlorosis, leaf bronzing, and shortened internodes.",
+        "symptoms": [
+            "Interveinal chlorosis with light green/yellow mottled spots",
+            "Shortened internodes resulting in a 'rosette' appearance",
+            "Small, distorted leaf growth ('little leaf')"
+        ],
+        "organic_remedies": [
+            "Apply Zinc Sulfate foliar spray (0.5% solution)",
+            "Apply organic zinc-chelate compound to soil",
+            "Incorporate zinc-enriched composted organic matter"
+        ],
+        "preventive_care": "Avoid excessive phosphorus fertilizer application which precipitates zinc in soil."
+    }
+}

@@ -6,3 +6,7 @@ __pycache__/
 .venv/
 venv/
 .ds_store
+uploads/*.jpg
+uploads/*.jpeg
+uploads/*.png
+uploads/*.webp
