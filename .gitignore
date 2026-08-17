@@ -1,0 +1,8 @@
+*.docx
+test.txt
+download_repo.js
+__pycache__/
+*.pyc
+.venv/
+venv/
+.ds_store
