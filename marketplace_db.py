@@ -23,7 +23,8 @@ def _get_supabase():
         url = st.secrets["supabase"]["url"]
         key = st.secrets["supabase"]["key"]
         return create_client(url, key)
-    except Exception:
+    except Exception as e:
+        st.error(f"Supabase Init Error: {e}")
         return None
 
 
