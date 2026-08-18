@@ -100,6 +100,31 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+def render_auth_ui():
+    st.markdown("### 🔒 Secure Authentication Required")
+    st.info("You must log in with a secure account to access the Marketplace and Messages.")
+    
+    auth_mode = st.radio("Choose action", ["Login", "Sign Up"], horizontal=True, label_visibility="collapsed")
+    with st.form("auth_form"):
+        email = st.text_input("Email")
+        password = st.text_input("Password", type="password")
+        submit = st.form_submit_button(auth_mode, use_container_width=True)
+        
+        if submit:
+            if not email or not password:
+                st.error("Please enter both email and password.")
+            else:
+                if auth_mode == "Login":
+                    success, msg = mdb.login(email, password)
+                else:
+                    success, msg = mdb.sign_up(email, password)
+                
+                if success:
+                    st.success(msg)
+                    st.rerun()
+                else:
+                    st.error(msg)
+
 # --- NAVIGATION TABS ---
 main_tab, market_tab, msg_tab, gallery_tab = st.tabs([
     "🔬 Scan & Analyze",
@@ -279,23 +304,16 @@ with market_tab:
     if not mdb.is_available():
         st.warning("⚠️ **Marketplace requires Supabase.** Add your Supabase `url` and `key` to `.streamlit/secrets.toml` to enable this feature.")
     else:
-        # --- Username Session ---
-        if "mp_user" not in st.session_state:
-            st.session_state.mp_user = ""
-        if not st.session_state.mp_user:
-            st.markdown("### 👤 Enter your username to use the Marketplace")
-            with st.form("mp_login"):
-                uname = st.text_input("Username", placeholder="e.g. plantlover42")
-                if st.form_submit_button("Continue", use_container_width=True):
-                    if uname.strip():
-                        mdb.ensure_user(uname.strip())
-                        st.session_state.mp_user = uname.strip()
-                        st.rerun()
-                    else:
-                        st.error("Please enter a username.")
+        # --- Authentication Session ---
+        if "sb_access_token" not in st.session_state:
+            render_auth_ui()
         else:
-            me = st.session_state.mp_user
-            st.caption(f"Logged in as **{me}**")
+            me = st.session_state.get("user_email", "User")
+            c1, c2 = st.columns([4, 1])
+            c1.caption(f"Logged in as **{me}**")
+            if c2.button("Logout", key="logout_mp"):
+                mdb.logout()
+                st.rerun()
 
             mp_view = st.radio("View", ["🛍️ Browse Listings", "➕ Create Listing", "📦 My Listings"], horizontal=True, label_visibility="collapsed")
 
@@ -323,17 +341,17 @@ with market_tab:
                                     <div class="pred-name" style="font-size:1.4rem;margin:0.5rem 0;">{item["title"]}</div>
                                     <div style="color:#52705e;font-size:0.9rem;">{item.get("description","")[:120]}</div>
                                     <div style="margin-top:0.6rem;font-weight:700;color:#1d6b3f;font-size:1.1rem;">{item.get("price","—")}</div>
-                                    <div style="margin-top:0.4rem;font-size:0.78rem;color:#7a9583;">by {item["seller"]} · {item["created_at"][:10]}</div>
+                                    <div style="margin-top:0.4rem;font-size:0.78rem;color:#7a9583;">by {item["seller_email"]} · {item["created_at"][:10]}</div>
                                 </div>
                                 """, unsafe_allow_html=True)
                                 if item.get("image_data"):
                                     st.image(mdb.base64_to_bytes(item["image_data"]), use_container_width=True)
-                                if item["seller"] != me:
-                                    if st.button(f"💬 Message {item['seller']}", key=f"msg_{item['id']}"):
-                                        conv = mdb.get_or_create_conversation(me, item["seller"], item["id"])
+                                if item["seller_id"] != st.session_state.get("user_id"):
+                                    if st.button(f"💬 Message Seller", key=f"msg_{item['id']}"):
+                                        conv = mdb.get_or_create_conversation(item["seller_id"], item["seller_email"], item["id"])
                                         if conv:
                                             st.session_state.active_conv = conv["id"]
-                                            st.session_state.active_conv_other = item["seller"]
+                                            st.session_state.active_conv_other = item["seller_email"]
                                             st.info(f"Conversation opened! Switch to the **💬 Messages** tab to chat.")
 
             # --- Create Listing ---
@@ -349,7 +367,7 @@ with market_tab:
                     img = st.file_uploader("Listing image (optional)", type=["jpg","jpeg","png","webp"])
                     if st.form_submit_button("📤 Post Listing", use_container_width=True):
                         if title.strip():
-                            result = mdb.create_listing(me, title.strip(), desc, price, l_type, category, img)
+                            result = mdb.create_listing(title.strip(), desc, price, l_type, category, img)
                             if result:
                                 st.success("✅ Listing created successfully!")
                                 st.rerun()
@@ -361,7 +379,7 @@ with market_tab:
             # --- My Listings ---
             else:
                 st.markdown("### 📦 My Listings")
-                my_items = mdb.get_user_listings(me)
+                my_items = mdb.get_user_listings()
                 if not my_items:
                     st.info("You haven't posted any listings yet.")
                 else:
@@ -388,11 +406,11 @@ with msg_tab:
     if not mdb.is_available():
         st.warning("⚠️ **Messaging requires Supabase.** Add your Supabase `url` and `key` to `.streamlit/secrets.toml` to enable this feature.")
     else:
-        if "mp_user" not in st.session_state or not st.session_state.mp_user:
-            st.info("Please set your username in the **🛒 Marketplace** tab first.")
+        if "sb_access_token" not in st.session_state:
+            st.info("Please log in using the **🛒 Marketplace** tab first.")
         else:
-            me = st.session_state.mp_user
-            convos = mdb.get_user_conversations(me)
+            me = st.session_state.get("user_email", "")
+            convos = mdb.get_user_conversations()
 
             if "active_conv" not in st.session_state:
                 st.session_state.active_conv = None
@@ -406,7 +424,7 @@ with msg_tab:
                 if not convos:
                     st.caption("No conversations yet. Message a seller from the Marketplace!")
                 for c in convos:
-                    other = c["user2"] if c["user1"] == me else c["user1"]
+                    other = c["user2_email"] if c["user1_id"] == st.session_state.get("user_id") else c["user1_email"]
                     label = f"💬 {other}"
                     if c.get("listing_id"):
                         label += " (listing)"
@@ -434,7 +452,7 @@ with msg_tab:
                             <div style="text-align:{align};margin:0.3rem 0;">
                                 <div style="display:inline-block;background:{bg};border:1px solid {border_col};
                                     border-radius:16px;padding:0.6rem 1rem;max-width:75%;text-align:left;">
-                                    <div style="font-size:0.7rem;font-weight:700;color:#5f7d6b;">{m["sender"]}</div>
+                                    <div style="font-size:0.7rem;font-weight:700;color:#5f7d6b;">{m["sender_email"]}</div>
                                     {"<div style='font-size:0.92rem;color:#1f3a2a;'>"+m["text"]+"</div>" if m.get("text") else ""}
                                     <div style="font-size:0.65rem;color:#9ab3a1;margin-top:2px;">{m["sent_at"][:16] if m.get("sent_at") else ""}</div>
                                 </div>
@@ -449,7 +467,7 @@ with msg_tab:
                         msg_img = st.file_uploader("Attach image", type=["jpg","jpeg","png","webp"], label_visibility="collapsed")
                         if sm2.form_submit_button("Send ➤"):
                             if msg_text.strip() or msg_img:
-                                mdb.send_message(st.session_state.active_conv, me, msg_text.strip() or None, msg_img)
+                                mdb.send_message(st.session_state.active_conv, msg_text.strip() or None, msg_img)
                                 st.rerun()
                             else:
                                 st.warning("Enter a message or attach an image.")

@@ -1,10 +1,7 @@
 """
 Marketplace & Messaging Database Module (Supabase)
 ===================================================
-Handles all CRUD operations for:
-- User identity (username-based)
-- P2P plant marketplace listings
-- Conversations and real-time messaging
+Handles all CRUD operations securely using Supabase Auth and RLS.
 """
 
 import base64
@@ -13,68 +10,91 @@ import streamlit as st
 from PIL import Image
 
 
-# --- SUPABASE CLIENT ---
+# --- SUPABASE CLIENT (SESSION AWARE) ---
 
-@st.cache_resource
-def _get_supabase():
-    """Initialize and cache the Supabase client."""
+def get_client():
+    """Create a new Supabase client for the current Streamlit session."""
     try:
         from supabase import create_client
         url = st.secrets["supabase"]["url"]
         key = st.secrets["supabase"]["key"]
-        return create_client(url, key)
+        client = create_client(url, key)
+        
+        # Restore the user's auth session if they are logged in
+        if "sb_access_token" in st.session_state and "sb_refresh_token" in st.session_state:
+            client.auth.set_session(
+                st.session_state["sb_access_token"], 
+                st.session_state["sb_refresh_token"]
+            )
+        return client
     except Exception as e:
         st.error(f"Supabase Init Error: {e}")
         return None
 
-
 def is_available():
-    """Check if Supabase is configured and reachable."""
-    return _get_supabase() is not None
+    return get_client() is not None
 
 
 # --- IMAGE UTILITIES ---
 
 def image_to_base64(uploaded_file, max_size=(800, 800), quality=80):
-    """Compress and encode an uploaded image to base64."""
     img = Image.open(uploaded_file).convert("RGB")
     img.thumbnail(max_size, Image.LANCZOS)
     buf = io.BytesIO()
     img.save(buf, format="JPEG", quality=quality)
     return base64.b64encode(buf.getvalue()).decode("utf-8")
 
-
 def base64_to_bytes(b64_string):
-    """Decode base64 string to bytes for st.image()."""
     return base64.b64decode(b64_string)
 
 
-# --- USER FUNCTIONS ---
+# --- AUTHENTICATION ---
 
-def ensure_user(username):
-    """Create user if not exists, return username."""
-    sb = _get_supabase()
-    if not sb:
-        return username
-    result = sb.table("users").select("username").eq("username", username).execute()
-    if not result.data:
-        sb.table("users").insert({
-            "username": username,
-            "display_name": username
-        }).execute()
-    return username
+def sign_up(email, password):
+    sb = get_client()
+    if not sb: return False, "Database unavailable"
+    try:
+        res = sb.auth.sign_up({"email": email, "password": password})
+        if res.user:
+            return True, "Success! You can now log in."
+        return False, "Sign up failed."
+    except Exception as e:
+        return False, str(e)
+
+def login(email, password):
+    sb = get_client()
+    if not sb: return False, "Database unavailable"
+    try:
+        res = sb.auth.sign_in_with_password({"email": email, "password": password})
+        if res.session:
+            st.session_state["sb_access_token"] = res.session.access_token
+            st.session_state["sb_refresh_token"] = res.session.refresh_token
+            st.session_state["user_id"] = res.user.id
+            st.session_state["user_email"] = res.user.email
+            return True, "Logged in!"
+        return False, "Invalid credentials."
+    except Exception as e:
+        return False, str(e)
+
+def logout():
+    sb = get_client()
+    if sb:
+        try: sb.auth.sign_out()
+        except: pass
+    st.session_state.pop("sb_access_token", None)
+    st.session_state.pop("sb_refresh_token", None)
+    st.session_state.pop("user_id", None)
+    st.session_state.pop("user_email", None)
 
 
 # --- LISTING FUNCTIONS ---
 
-def create_listing(seller, title, description, price, listing_type,
-                   plant_category="", image_file=None):
-    """Create a new marketplace listing."""
-    sb = _get_supabase()
-    if not sb:
-        return None
+def create_listing(title, description, price, listing_type, plant_category="", image_file=None):
+    sb = get_client()
+    if not sb or "user_id" not in st.session_state: return None
     data = {
-        "seller": seller,
+        "seller_id": st.session_state["user_id"],
+        "seller_email": st.session_state["user_email"],
         "title": title,
         "description": description,
         "price": price,
@@ -85,116 +105,83 @@ def create_listing(seller, title, description, price, listing_type,
     result = sb.table("listings").insert(data).execute()
     return result.data[0] if result.data else None
 
-
 def get_active_listings(listing_type=None):
-    """Get all active marketplace listings."""
-    sb = _get_supabase()
-    if not sb:
-        return []
-    query = sb.table("listings").select("*").eq("status", "active").order(
-        "created_at", desc=True
-    )
+    sb = get_client()
+    if not sb: return []
+    query = sb.table("listings").select("*").eq("status", "active").order("created_at", desc=True)
     if listing_type:
         query = query.eq("listing_type", listing_type)
     return query.execute().data or []
 
-
 def get_listing_by_id(listing_id):
-    """Get a single listing by ID."""
-    sb = _get_supabase()
-    if not sb:
-        return None
+    sb = get_client()
+    if not sb: return None
     result = sb.table("listings").select("*").eq("id", listing_id).execute()
     return result.data[0] if result.data else None
 
-
-def get_user_listings(username):
-    """Get all listings by a specific user."""
-    sb = _get_supabase()
-    if not sb:
-        return []
-    return sb.table("listings").select("*").eq("seller", username).order(
-        "created_at", desc=True
-    ).execute().data or []
-
-
-def close_listing(listing_id):
-    """Mark a listing as closed."""
-    sb = _get_supabase()
-    if not sb:
-        return
-    sb.table("listings").update({"status": "closed"}).eq("id", listing_id).execute()
+def get_user_listings():
+    sb = get_client()
+    if not sb or "user_id" not in st.session_state: return []
+    return sb.table("listings").select("*").eq("seller_id", st.session_state["user_id"]).order("created_at", desc=True).execute().data or []
 
 
 # --- CONVERSATION FUNCTIONS ---
 
-def get_or_create_conversation(current_user, other_user, listing_id=None):
-    """Find existing conversation or create a new one."""
-    sb = _get_supabase()
-    if not sb:
-        return None
+def get_or_create_conversation(other_user_id, other_user_email, listing_id=None):
+    sb = get_client()
+    if not sb or "user_id" not in st.session_state: return None
+    my_id = st.session_state["user_id"]
+    my_email = st.session_state["user_email"]
 
     # Check direction 1
-    q = sb.table("conversations").select("*").eq("user1", current_user).eq(
-        "user2", other_user
-    )
-    if listing_id:
-        q = q.eq("listing_id", listing_id)
+    q = sb.table("conversations").select("*").eq("user1_id", my_id).eq("user2_id", other_user_id)
+    if listing_id: q = q.eq("listing_id", listing_id)
     result = q.execute()
-    if result.data:
-        return result.data[0]
+    if result.data: return result.data[0]
 
     # Check direction 2
-    q = sb.table("conversations").select("*").eq("user1", other_user).eq(
-        "user2", current_user
-    )
-    if listing_id:
-        q = q.eq("listing_id", listing_id)
+    q = sb.table("conversations").select("*").eq("user1_id", other_user_id).eq("user2_id", my_id)
+    if listing_id: q = q.eq("listing_id", listing_id)
     result = q.execute()
-    if result.data:
-        return result.data[0]
+    if result.data: return result.data[0]
 
     # Create new conversation
-    data = {"user1": current_user, "user2": other_user}
+    data = {
+        "user1_id": my_id, 
+        "user2_id": other_user_id,
+        "user1_email": my_email,
+        "user2_email": other_user_email
+    }
     if listing_id:
         data["listing_id"] = listing_id
     result = sb.table("conversations").insert(data).execute()
     return result.data[0] if result.data else None
 
-
-def get_user_conversations(username):
-    """Get all conversations for a user."""
-    sb = _get_supabase()
-    if not sb:
-        return []
+def get_user_conversations():
+    sb = get_client()
+    if not sb or "user_id" not in st.session_state: return []
+    my_id = st.session_state["user_id"]
     return sb.table("conversations").select("*").or_(
-        f"user1.eq.{username},user2.eq.{username}"
+        f"user1_id.eq.{my_id},user2_id.eq.{my_id}"
     ).order("created_at", desc=True).execute().data or []
 
 
 # --- MESSAGE FUNCTIONS ---
 
-def send_message(conversation_id, sender, text=None, image_file=None):
-    """Send a message in a conversation."""
-    sb = _get_supabase()
-    if not sb:
-        return None
+def send_message(conversation_id, text=None, image_file=None):
+    sb = get_client()
+    if not sb or "user_id" not in st.session_state: return None
     data = {
         "conversation_id": conversation_id,
-        "sender": sender,
+        "sender_id": st.session_state["user_id"],
+        "sender_email": st.session_state["user_email"],
         "text": text,
-        "image_data": image_to_base64(image_file, max_size=(600, 600))
-        if image_file else None,
+        "image_data": image_to_base64(image_file, max_size=(600, 600)) if image_file else None,
     }
     result = sb.table("messages").insert(data).execute()
     return result.data[0] if result.data else None
 
-
 def get_messages(conversation_id):
-    """Get all messages in a conversation, oldest first."""
-    sb = _get_supabase()
-    if not sb:
-        return []
-    return sb.table("messages").select("*").eq(
-        "conversation_id", conversation_id
-    ).order("sent_at").execute().data or []
+    sb = get_client()
+    if not sb: return []
+    return sb.table("messages").select("*").eq("conversation_id", conversation_id).order("sent_at").execute().data or []

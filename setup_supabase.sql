@@ -1,19 +1,20 @@
 -- ============================================================
--- HerbScan AI — Supabase Database Setup
+-- HerbScan AI — SECURE Supabase Database Setup (Sections 1, 2, 4)
 -- Run this in your Supabase SQL Editor (Dashboard → SQL Editor)
+-- WARNING: This will DELETE existing marketplace data!
 -- ============================================================
 
--- Users table (simple username-based identity)
-CREATE TABLE IF NOT EXISTS users (
-    username TEXT PRIMARY KEY,
-    display_name TEXT NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
+-- Clean up old insecure tables if they exist
+DROP TABLE IF EXISTS messages;
+DROP TABLE IF EXISTS conversations;
+DROP TABLE IF EXISTS listings;
+DROP TABLE IF EXISTS users;
 
--- Marketplace listings
+-- Marketplace listings (Now linked securely to auth.users via UUID)
 CREATE TABLE IF NOT EXISTS listings (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    seller TEXT NOT NULL REFERENCES users(username),
+    seller_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    seller_email TEXT NOT NULL, -- Storing email for easy display in UI
     title TEXT NOT NULL,
     description TEXT,
     price TEXT,
@@ -24,20 +25,23 @@ CREATE TABLE IF NOT EXISTS listings (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Conversations between two users
+-- Conversations between two users (Linked securely via UUID)
 CREATE TABLE IF NOT EXISTS conversations (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    user1 TEXT NOT NULL REFERENCES users(username),
-    user2 TEXT NOT NULL REFERENCES users(username),
-    listing_id UUID REFERENCES listings(id),
+    user1_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    user2_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    user1_email TEXT NOT NULL,
+    user2_email TEXT NOT NULL,
+    listing_id UUID REFERENCES listings(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Chat messages
+-- Chat messages (Linked securely via UUID)
 CREATE TABLE IF NOT EXISTS messages (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
-    sender TEXT NOT NULL REFERENCES users(username),
+    sender_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    sender_email TEXT NOT NULL,
     text TEXT,
     image_data TEXT,
     sent_at TIMESTAMPTZ DEFAULT NOW()
@@ -45,19 +49,42 @@ CREATE TABLE IF NOT EXISTS messages (
 
 -- Performance indexes
 CREATE INDEX IF NOT EXISTS idx_listings_status ON listings(status);
-CREATE INDEX IF NOT EXISTS idx_listings_seller ON listings(seller);
-CREATE INDEX IF NOT EXISTS idx_conv_user1 ON conversations(user1);
-CREATE INDEX IF NOT EXISTS idx_conv_user2 ON conversations(user2);
+CREATE INDEX IF NOT EXISTS idx_listings_seller ON listings(seller_id);
+CREATE INDEX IF NOT EXISTS idx_conv_user1 ON conversations(user1_id);
+CREATE INDEX IF NOT EXISTS idx_conv_user2 ON conversations(user2_id);
 CREATE INDEX IF NOT EXISTS idx_msg_conv ON messages(conversation_id);
-CREATE INDEX IF NOT EXISTS idx_msg_sent ON messages(sent_at);
 
--- Enable RLS with permissive policies (anon key access)
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+-- ============================================================
+-- ROW LEVEL SECURITY (RLS) POLICIES
+-- ============================================================
+
 ALTER TABLE listings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE conversations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "public_users" ON users FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "public_listings" ON listings FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "public_conversations" ON conversations FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "public_messages" ON messages FOR ALL USING (true) WITH CHECK (true);
+-- 1. LISTINGS: Anyone can read, but only the owner can insert/update/delete
+CREATE POLICY "Public can read active listings" ON listings 
+FOR SELECT USING (status = 'active');
+
+CREATE POLICY "Users can manage their own listings" ON listings 
+FOR ALL USING (auth.uid() = seller_id) WITH CHECK (auth.uid() = seller_id);
+
+-- 2. CONVERSATIONS: Only participants can read or create
+CREATE POLICY "Users can access their own conversations" ON conversations
+FOR SELECT USING (auth.uid() = user1_id OR auth.uid() = user2_id);
+
+CREATE POLICY "Users can create conversations" ON conversations
+FOR INSERT WITH CHECK (auth.uid() = user1_id OR auth.uid() = user2_id);
+
+-- 3. MESSAGES: Only conversation participants can read, only sender can insert
+CREATE POLICY "Participants can read messages in their conversations" ON messages
+FOR SELECT USING (
+    EXISTS (
+        SELECT 1 FROM conversations c 
+        WHERE c.id = messages.conversation_id 
+        AND (c.user1_id = auth.uid() OR c.user2_id = auth.uid())
+    )
+);
+
+CREATE POLICY "Users can insert their own messages" ON messages
+FOR INSERT WITH CHECK (auth.uid() = sender_id);
