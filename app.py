@@ -10,6 +10,7 @@ from community_manager import (
     add_unknown_plant, submit_identification,
     get_unidentified_plants, get_all_submissions
 )
+import marketplace_db as mdb
 
 MODEL_PATH = "medicinal_leaf_efficientnet.keras"
 CLASS_NAMES_PATH = "class_names.json"
@@ -100,14 +101,26 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- NAVIGATION TABS ---
-main_tab, gallery_tab = st.tabs(["🔬 Scan & Analyze", "🌍 Community Gallery — Help Identify Plants"])
+main_tab, market_tab, msg_tab, gallery_tab = st.tabs([
+    "🔬 Scan & Analyze",
+    "🛒 Marketplace",
+    "💬 Messages",
+    "🌍 Community Gallery"
+])
 
 # ============================================================
 # TAB 1: SCAN & ANALYZE
 # ============================================================
 with main_tab:
-    st.markdown("### 📷 Upload Leaf Image")
-    uploaded_file = st.file_uploader("Choose a leaf image...", type=["jpg","jpeg","png","webp"], label_visibility="collapsed")
+    st.markdown("### 📷 Capture or Upload Leaf Image")
+    input_mode = st.radio("Input method", ["📁 Upload File", "📸 Camera"], horizontal=True, label_visibility="collapsed")
+    uploaded_file = None
+    if input_mode == "📁 Upload File":
+        uploaded_file = st.file_uploader("Choose a leaf image...", type=["jpg","jpeg","png","webp"], label_visibility="collapsed")
+    else:
+        cam_photo = st.camera_input("Take a photo of the leaf")
+        if cam_photo is not None:
+            uploaded_file = cam_photo
 
     if uploaded_file is not None:
         image = Image.open(uploaded_file).convert("RGB")
@@ -260,7 +273,197 @@ with main_tab:
         """, unsafe_allow_html=True)
 
 # ============================================================
-# TAB 2: COMMUNITY GALLERY
+# TAB 2: MARKETPLACE
+# ============================================================
+with market_tab:
+    if not mdb.is_available():
+        st.warning("⚠️ **Marketplace requires Supabase.** Add your Supabase `url` and `key` to `.streamlit/secrets.toml` to enable this feature.")
+    else:
+        # --- Username Session ---
+        if "mp_user" not in st.session_state:
+            st.session_state.mp_user = ""
+        if not st.session_state.mp_user:
+            st.markdown("### 👤 Enter your username to use the Marketplace")
+            with st.form("mp_login"):
+                uname = st.text_input("Username", placeholder="e.g. plantlover42")
+                if st.form_submit_button("Continue", use_container_width=True):
+                    if uname.strip():
+                        mdb.ensure_user(uname.strip())
+                        st.session_state.mp_user = uname.strip()
+                        st.rerun()
+                    else:
+                        st.error("Please enter a username.")
+        else:
+            me = st.session_state.mp_user
+            st.caption(f"Logged in as **{me}**")
+
+            mp_view = st.radio("View", ["🛍️ Browse Listings", "➕ Create Listing", "📦 My Listings"], horizontal=True, label_visibility="collapsed")
+
+            # --- Browse Listings ---
+            if mp_view == "🛍️ Browse Listings":
+                st.markdown("### 🛍️ Active Marketplace Listings")
+                filt = st.selectbox("Filter", ["All", "Selling", "Buying"], label_visibility="collapsed")
+                lt = {"Selling": "sell", "Buying": "buy"}.get(filt)
+                listings = mdb.get_active_listings(listing_type=lt)
+                if not listings:
+                    st.info("No active listings yet. Be the first to post!")
+                else:
+                    for i in range(0, len(listings), 2):
+                        cols = st.columns(2, gap="medium")
+                        for ci, col in enumerate(cols):
+                            li = i + ci
+                            if li >= len(listings):
+                                break
+                            item = listings[li]
+                            with col:
+                                st.markdown(f"""
+                                <div class="card-box">
+                                    <span class="tag">{"🏷️ Selling" if item["listing_type"]=="sell" else "🔎 Buying"}</span>
+                                    {"<span class='tag'>"+item["plant_category"]+"</span>" if item.get("plant_category") else ""}
+                                    <div class="pred-name" style="font-size:1.4rem;margin:0.5rem 0;">{item["title"]}</div>
+                                    <div style="color:#52705e;font-size:0.9rem;">{item.get("description","")[:120]}</div>
+                                    <div style="margin-top:0.6rem;font-weight:700;color:#1d6b3f;font-size:1.1rem;">{item.get("price","—")}</div>
+                                    <div style="margin-top:0.4rem;font-size:0.78rem;color:#7a9583;">by {item["seller"]} · {item["created_at"][:10]}</div>
+                                </div>
+                                """, unsafe_allow_html=True)
+                                if item.get("image_data"):
+                                    st.image(mdb.base64_to_bytes(item["image_data"]), use_container_width=True)
+                                if item["seller"] != me:
+                                    if st.button(f"💬 Message {item['seller']}", key=f"msg_{item['id']}"):
+                                        conv = mdb.get_or_create_conversation(me, item["seller"], item["id"])
+                                        if conv:
+                                            st.session_state.active_conv = conv["id"]
+                                            st.session_state.active_conv_other = item["seller"]
+                                            st.info(f"Conversation opened! Switch to the **💬 Messages** tab to chat.")
+
+            # --- Create Listing ---
+            elif mp_view == "➕ Create Listing":
+                st.markdown("### ➕ Create a New Listing")
+                with st.form("new_listing"):
+                    title = st.text_input("Title *", placeholder="e.g. Fresh Tulsi Cuttings")
+                    desc = st.text_area("Description", placeholder="Describe what you're selling or looking for...")
+                    lc1, lc2, lc3 = st.columns(3)
+                    price = lc1.text_input("Price", placeholder="e.g. ₹150 / Free")
+                    l_type = lc2.selectbox("Type", ["sell", "buy"])
+                    category = lc3.text_input("Plant Category", placeholder="e.g. Tulsi")
+                    img = st.file_uploader("Listing image (optional)", type=["jpg","jpeg","png","webp"])
+                    if st.form_submit_button("📤 Post Listing", use_container_width=True):
+                        if title.strip():
+                            result = mdb.create_listing(me, title.strip(), desc, price, l_type, category, img)
+                            if result:
+                                st.success("✅ Listing created successfully!")
+                                st.rerun()
+                            else:
+                                st.error("Failed to create listing.")
+                        else:
+                            st.error("Please enter a title.")
+
+            # --- My Listings ---
+            else:
+                st.markdown("### 📦 My Listings")
+                my_items = mdb.get_user_listings(me)
+                if not my_items:
+                    st.info("You haven't posted any listings yet.")
+                else:
+                    for item in my_items:
+                        with st.container():
+                            st.markdown(f"""
+                            <div class="community-card" style="border-left:4px solid {'#2d8a53' if item['status']=='active' else '#999'};">
+                                <span class="tag">{item["listing_type"].upper()}</span>
+                                <span class="tag">{item["status"].upper()}</span>
+                                <div style="font-weight:700;font-size:1.1rem;margin:0.3rem 0;">{item["title"]}</div>
+                                <div style="font-size:0.85rem;color:#52705e;">{item.get("price","—")} · {item["created_at"][:10]}</div>
+                            </div>
+                            """, unsafe_allow_html=True)
+                            if item["status"] == "active":
+                                if st.button("❌ Close Listing", key=f"close_{item['id']}"):
+                                    mdb.close_listing(item["id"])
+                                    st.success("Listing closed.")
+                                    st.rerun()
+
+# ============================================================
+# TAB 3: MESSAGES
+# ============================================================
+with msg_tab:
+    if not mdb.is_available():
+        st.warning("⚠️ **Messaging requires Supabase.** Add your Supabase `url` and `key` to `.streamlit/secrets.toml` to enable this feature.")
+    else:
+        if "mp_user" not in st.session_state or not st.session_state.mp_user:
+            st.info("Please set your username in the **🛒 Marketplace** tab first.")
+        else:
+            me = st.session_state.mp_user
+            convos = mdb.get_user_conversations(me)
+
+            if "active_conv" not in st.session_state:
+                st.session_state.active_conv = None
+            if "active_conv_other" not in st.session_state:
+                st.session_state.active_conv_other = ""
+
+            mc1, mc2 = st.columns([1, 2.5], gap="medium")
+
+            with mc1:
+                st.markdown("#### 📬 Conversations")
+                if not convos:
+                    st.caption("No conversations yet. Message a seller from the Marketplace!")
+                for c in convos:
+                    other = c["user2"] if c["user1"] == me else c["user1"]
+                    label = f"💬 {other}"
+                    if c.get("listing_id"):
+                        label += " (listing)"
+                    if st.button(label, key=f"conv_{c['id']}", use_container_width=True):
+                        st.session_state.active_conv = c["id"]
+                        st.session_state.active_conv_other = other
+                        st.rerun()
+
+            with mc2:
+                if st.session_state.active_conv:
+                    other = st.session_state.active_conv_other
+                    st.markdown(f"#### Chat with **{other}**")
+                    messages = mdb.get_messages(st.session_state.active_conv)
+
+                    chat_container = st.container(height=400)
+                    with chat_container:
+                        if not messages:
+                            st.caption("No messages yet. Say hello! 👋")
+                        for m in messages:
+                            is_me = m["sender"] == me
+                            align = "right" if is_me else "left"
+                            bg = "#e8f5e9" if is_me else "#ffffff"
+                            border_col = "#2d8a53" if is_me else "#dce8e0"
+                            st.markdown(f"""
+                            <div style="text-align:{align};margin:0.3rem 0;">
+                                <div style="display:inline-block;background:{bg};border:1px solid {border_col};
+                                    border-radius:16px;padding:0.6rem 1rem;max-width:75%;text-align:left;">
+                                    <div style="font-size:0.7rem;font-weight:700;color:#5f7d6b;">{m["sender"]}</div>
+                                    {"<div style='font-size:0.92rem;color:#1f3a2a;'>"+m["text"]+"</div>" if m.get("text") else ""}
+                                    <div style="font-size:0.65rem;color:#9ab3a1;margin-top:2px;">{m["sent_at"][:16] if m.get("sent_at") else ""}</div>
+                                </div>
+                            </div>
+                            """, unsafe_allow_html=True)
+                            if m.get("image_data"):
+                                st.image(mdb.base64_to_bytes(m["image_data"]), width=250)
+
+                    with st.form("send_msg", clear_on_submit=True):
+                        sm1, sm2 = st.columns([4, 1])
+                        msg_text = sm1.text_input("Message", placeholder="Type a message...", label_visibility="collapsed")
+                        msg_img = st.file_uploader("Attach image", type=["jpg","jpeg","png","webp"], label_visibility="collapsed")
+                        if sm2.form_submit_button("Send ➤"):
+                            if msg_text.strip() or msg_img:
+                                mdb.send_message(st.session_state.active_conv, me, msg_text.strip() or None, msg_img)
+                                st.rerun()
+                            else:
+                                st.warning("Enter a message or attach an image.")
+                else:
+                    st.markdown("""
+                    <div style="background:white;border-radius:20px;padding:3rem;text-align:center;border:1px solid #dce8e0;">
+                        <div style="font-size:3rem;">💬</div>
+                        <h3 style="color:#1f4a30;">Select a Conversation</h3>
+                        <p style="color:#5f7d6b;">Choose a conversation from the list, or start one from the Marketplace.</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+# ============================================================
+# TAB 4: COMMUNITY GALLERY
 # ============================================================
 with gallery_tab:
     st.markdown("### 🌍 Community Plant Gallery")
@@ -323,7 +526,7 @@ with gallery_tab:
 
 st.markdown("""
 <div class="footer">
-    HerbScan AI · Medicinal Plant Identification · Leaf Health Diagnostics · Community Gallery<br>
-    Built with TensorFlow + EfficientNetB0 + OpenCV + Streamlit
+    HerbScan AI · Plant ID · Health Diagnostics · Marketplace · Messaging · Community Gallery<br>
+    Built with TensorFlow + EfficientNetB0 + OpenCV + Supabase + Streamlit
 </div>
 """, unsafe_allow_html=True)
