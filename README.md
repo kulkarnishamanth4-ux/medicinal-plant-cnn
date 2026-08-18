@@ -22,6 +22,8 @@ Built with **TensorFlow**, **EfficientNetB0**, **OpenCV**, and **Streamlit**, He
 * **📸 Direct Camera Capture**: Seamlessly open the device camera within the web app to capture and classify leaves on the fly without saving photos locally.
 * **🛒 P2P Medicinal Plant Marketplace**: A dedicated ecosystem for users to buy, sell, and trade medicinal plants and seeds.
 * **💬 In-App Secure Messaging**: Real-time, authenticated chat rooms for buyers and sellers to communicate, negotiate, and securely share images.
+* **🧠 Localized Personal AI Models**: Allow users to fine-tune personal, private versions of the model adapted to the specific geographical variations of plants in their region.
+* **🌍 Context-Aware Predictions**: Fuse image data with metadata (geolocation, season, climate) in a multi-modal neural network to drastically improve identification accuracy.
 
 ---
 
