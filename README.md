@@ -17,6 +17,12 @@ Built with **TensorFlow**, **EfficientNetB0**, **OpenCV**, and **Streamlit**, He
   * **Color-Coded Diagnostic Heatmap Overlay**: Visual segmentation mask highlighting healthy vs. damaged leaf zones.
   * **Tailored Organic Remedies**: Provides bio-fertilizer recommendations, Epsom salt foliar sprays, compost teas, and preventive soil management.
 
+### 🔮 Planned Future Enhancements
+
+* **📸 Direct Camera Capture**: Seamlessly open the device camera within the web app to capture and classify leaves on the fly without saving photos locally.
+* **🛒 P2P Medicinal Plant Marketplace**: A dedicated ecosystem for users to buy, sell, and trade medicinal plants and seeds.
+* **💬 In-App Secure Messaging**: Real-time, authenticated chat rooms for buyers and sellers to communicate, negotiate, and securely share images.
+
 ---
 
 ## 📁 Repository Structure
