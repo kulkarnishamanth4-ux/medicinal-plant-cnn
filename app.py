@@ -183,12 +183,21 @@ with main_tab:
                     with st.form("name_form"):
                         user_name = st.text_input("Your name (optional)", placeholder="Anonymous")
                         plant_name = st.text_input("Plant name *", placeholder="e.g. Tulsi, Ashwagandha...")
+                        
+                        st.markdown("#### 🌍 Environmental Context")
+                        st.caption("Help us build our upcoming Multi-Modal AI by providing context!")
+                        ec1, ec2, ec3 = st.columns(3)
+                        region = ec1.text_input("Region", placeholder="e.g. Coastal")
+                        climate = ec2.text_input("Climate", placeholder="e.g. Monsoon")
+                        soil = ec3.text_input("Soil", placeholder="e.g. Sandy")
+                        
                         submitted = st.form_submit_button("✅ Submit Plant Name", use_container_width=True)
                         if submitted and plant_name.strip():
                             fname = f"{plant_name.strip().replace(' ','_')}_{uploaded_file.name}"
                             fpath = os.path.join(UPLOADS_DIR, fname)
                             image.save(fpath)
-                            sid = add_unknown_plant(fname, predicted_species, species_confidence, user_name, plant_name.strip())
+                            ctx = {"region": region, "climate": climate, "soil": soil}
+                            sid = add_unknown_plant(fname, predicted_species, species_confidence, user_name, plant_name.strip(), ctx)
                             st.success(f"✅ Thank you! **{plant_name}** has been recorded. (ID: {sid})")
                         elif submitted:
                             st.error("Please enter a plant name.")
@@ -196,12 +205,21 @@ with main_tab:
                 else:
                     with st.form("unknown_form"):
                         user_name = st.text_input("Your name (optional)", placeholder="Anonymous")
+                        
+                        st.markdown("#### 🌍 Environmental Context")
+                        st.caption("Help us build our upcoming Multi-Modal AI by providing context!")
+                        ec1, ec2, ec3 = st.columns(3)
+                        region = ec1.text_input("Region", placeholder="e.g. Coastal")
+                        climate = ec2.text_input("Climate", placeholder="e.g. Monsoon")
+                        soil = ec3.text_input("Soil", placeholder="e.g. Sandy")
+                        
                         submitted = st.form_submit_button("📤 Post to Community Gallery", use_container_width=True)
                         if submitted:
                             fname = f"unknown_{uploaded_file.name}"
                             fpath = os.path.join(UPLOADS_DIR, fname)
                             image.save(fpath)
-                            sid = add_unknown_plant(fname, predicted_species, species_confidence, user_name, "")
+                            ctx = {"region": region, "climate": climate, "soil": soil}
+                            sid = add_unknown_plant(fname, predicted_species, species_confidence, user_name, "", ctx)
                             st.success(f"📤 Posted to Community Gallery! Others can now help identify it. (ID: {sid})")
 
         # --- HIGH CONFIDENCE: NORMAL IDENTIFICATION ---
@@ -231,6 +249,22 @@ with main_tab:
                 if plant_info:
                     st.markdown("---")
                     st.markdown(f"### 📖 About {predicted_species}")
+                    
+                    try:
+                        from gtts import gTTS
+                        import io
+                        if st.button("🔊 Listen to Pronunciation", key="audio_btn"):
+                            with st.spinner("Generating audio..."):
+                                txt = f"{predicted_species}. Scientific name: {plant_info.get('scientific_name', '')}."
+                                sanskrit = plant_info.get('sanskrit_names', [])
+                                if sanskrit: txt += f" Sanskrit name: {sanskrit[0]}."
+                                tts = gTTS(text=txt, lang='en')
+                                fp = io.BytesIO()
+                                tts.write_to_fp(fp)
+                                st.audio(fp, format='audio/mp3')
+                    except Exception as e:
+                        st.caption("Audio pronunciation currently unavailable.")
+                    
                     pc1, pc2, pc3 = st.columns(3)
                     pc1.info(f"**Family:**\n{plant_info.get('family','N/A')}")
                     pc2.info(f"**Common Names:**\n{', '.join(plant_info.get('common_names',[predicted_species]))}")

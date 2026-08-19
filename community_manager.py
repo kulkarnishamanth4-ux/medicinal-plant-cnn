@@ -37,27 +37,9 @@ def _save_submissions(data):
 
 
 def add_unknown_plant(image_filename, model_prediction, model_confidence,
-                      user_name="", user_provided_name=""):
+                      user_name="", user_provided_name="", context_data=None):
     """
     Add an unknown/low-confidence plant to the community gallery.
-
-    Parameters
-    ----------
-    image_filename : str
-        Filename of the uploaded image (stored in uploads/).
-    model_prediction : str
-        The model's best guess prediction.
-    model_confidence : float
-        The model's confidence score (0-100).
-    user_name : str
-        Optional name of the submitting user.
-    user_provided_name : str
-        If the user knows the plant name, they can provide it here.
-
-    Returns
-    -------
-    str
-        The unique submission ID.
     """
     data = _load_submissions()
     submission_id = str(uuid.uuid4())[:8]
@@ -72,6 +54,7 @@ def add_unknown_plant(image_filename, model_prediction, model_confidence,
         "status": "identified" if user_provided_name else "unidentified",
         "submitted_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "identification_suggestions": [],
+        "context_data": context_data or {}
     }
 
     data["unknown_plants"].append(entry)
