@@ -26,9 +26,10 @@ Built with **TensorFlow**, **MobileNetV3Large**, **OpenCV**, **Supabase**, and *
 * **🗺️ Live Foraging Map**: A community-driven interactive globe where users can drop GPS pins of medicinal plants they discover in the wild.
 * **🧠 Decentralized Federated Learning**: An advanced browser-based AI trainer. Users can teach the AI entirely new plant species using local KNN embeddings, and securely sync those mathematical weights to a global database for other users to download instantly.
 
-### 🔮 Planned Future Enhancements
+* **🌍 Context-Aware Predictions (Late-Fusion)**: Fuses image data with environmental metadata (Region, Season) in a secondary Multi-Modal Neural Network to drastically improve identification accuracy.
+* **🌲 Deep Forest Mode (Offline PWA)**: A standalone Progressive Web App with a Service Worker that caches the AI model and UI to the user's phone. Works 100% offline using IndexedDB, allowing users to scan and save plants deep in the forest, then bulk-sync to the cloud when Wi-Fi is restored.
 
-* **🌍 Context-Aware Predictions**: Fuse image data with metadata (geolocation, season, climate) in a multi-modal neural network to drastically improve identification accuracy.
+### 🔮 Planned Future Enhancements
 * **🧱 3D Reconstruction**: Photogrammetry implementation to provide 3D visual cues for the plants.
 * **⛓️ Blockchain Provenance**: Tokenize rare medicinal herbs in the marketplace as NFTs.
 
@@ -39,6 +40,9 @@ Built with **TensorFlow**, **MobileNetV3Large**, **OpenCV**, **Supabase**, and *
 ```text
 ├── app.py                             # Interactive Streamlit Web Application
 ├── ar_scanner.html                    # Custom WebRTC Edge AI Scanner Component
+├── offline_scanner.html               # Deep Forest Offline PWA Scanner Interface
+├── sw.js                              # PWA Service Worker for Offline Caching
+├── manifest.json                      # PWA Installation Manifest
 ├── federated_trainer.html             # Browser-based Federated Learning KNN Trainer
 ├── deficiency_analyzer.py             # Computer Vision Leaf Health & Deficiency Analyzer
 ├── marketplace_db.py                  # Supabase Auth, Marketplace, and Messaging Logic
@@ -49,6 +53,8 @@ Built with **TensorFlow**, **MobileNetV3Large**, **OpenCV**, **Supabase**, and *
 ├── deficiency_database.json           # Knowledge Base of Deficiencies & Organic Remedies
 ├── plant_database.json                # Ayurvedic & Botanical Metadata Database
 ├── medicinal_leaf_mobilenetv3.keras   # Pre-trained MobileNetV3Large Keras Model Weights
+├── multimodal_fusion.keras            # Late-Fusion Multi-Modal Neural Network
+├── train_multimodal.py                # Synthetic Data Generator & Fusion Training Script
 ├── tfjs_model/                        # TensorFlow.js GraphModel for Edge Inference
 ├── train_mobilenet.ipynb              # Google Colab Training Script
 ├── class_names.json                   # Class Label Mappings
