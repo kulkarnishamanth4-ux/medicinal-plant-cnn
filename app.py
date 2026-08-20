@@ -138,14 +138,23 @@ main_tab, market_tab, msg_tab, gallery_tab = st.tabs([
 # ============================================================
 with main_tab:
     st.markdown("### 📷 Capture or Upload Leaf Image")
-    input_mode = st.radio("Input method", ["📁 Upload File", "📸 Camera"], horizontal=True, label_visibility="collapsed")
+    input_mode = st.radio("Input method", ["📁 Upload File", "📸 Camera Capture", "🟢 Real-Time AR Scanner (Edge AI)"], horizontal=True, label_visibility="collapsed")
     uploaded_file = None
     if input_mode == "📁 Upload File":
         uploaded_file = st.file_uploader("Choose a leaf image...", type=["jpg","jpeg","png","webp"], label_visibility="collapsed")
-    else:
+    elif input_mode == "📸 Camera Capture":
         cam_photo = st.camera_input("Take a photo of the leaf")
         if cam_photo is not None:
             uploaded_file = cam_photo
+    else:
+        import streamlit.components.v1 as components
+        if os.path.exists("ar_scanner.html"):
+            with open("ar_scanner.html", "r", encoding="utf-8") as f:
+                html_data = f.read()
+            st.info("💡 **Edge AI Active:** Inference is running directly on your device GPU via TensorFlow.js! No data is sent to the server.")
+            components.html(html_data, height=550)
+        else:
+            st.error("AR Scanner component missing.")
 
     if uploaded_file is not None:
         image = Image.open(uploaded_file).convert("RGB")

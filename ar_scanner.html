@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edge AI Scanner</title>
+    <!-- Load TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f3f8f5;
+            font-family: 'Inter', sans-serif;
+            color: #124a29;
+        }
+        #container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-top: 10px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 24px rgba(20,60,35,0.15);
+            background: #000;
+        }
+        video {
+            width: 100%;
+            display: block;
+            transform: scaleX(-1); /* Mirror effect */
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            transform: scaleX(-1);
+        }
+        #ui-overlay {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.9);
+            padding: 10px 25px;
+            border-radius: 30px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 10;
+            min-width: 250px;
+        }
+        #prediction {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #1d6b3f;
+            margin: 0;
+        }
+        #confidence {
+            font-size: 0.9rem;
+            color: #52705e;
+            font-weight: 600;
+            margin: 0;
+        }
+        #status {
+            padding: 15px;
+            font-weight: 600;
+            color: #2d8a53;
+        }
+        /* Scanner reticle */
+        .reticle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 224px;
+            height: 224px;
+            transform: translate(-50%, -50%);
+            border: 3px dashed rgba(45, 138, 83, 0.6);
+            border-radius: 20px;
+            pointer-events: none;
+            box-sizing: border-box;
+            z-index: 5;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="status">⏳ Loading Edge AI Model (MobileNetV3)...</div>
+    
+    <div id="container" style="display: none;">
+        <video id="webcam" autoplay playsinline></video>
+        <canvas id="overlay"></canvas>
+        <div class="reticle"></div>
+        <div id="ui-overlay">
+            <p id="prediction">Scanning...</p>
+            <p id="confidence">Please point at a leaf</p>
+        </div>
+    </div>
+
+    <script>
+        const MODEL_URL = 'https://raw.githubusercontent.com/kulkarnishamanth4-ux/medicinal-plant-cnn/main/tfjs_model/model.json';
+        const CLASSES_URL = 'https://raw.githubusercontent.com/kulkarnishamanth4-ux/medicinal-plant-cnn/main/class_names.json';
+        
+        let model;
+        let classNames = [];
+        const video = document.getElementById('webcam');
+        const statusDiv = document.getElementById('status');
+        const container = document.getElementById('container');
+        const predText = document.getElementById('prediction');
+        const confText = document.getElementById('confidence');
+
+        async function init() {
+            try {
+                // 1. Load Class Names
+                const classRes = await fetch(CLASSES_URL);
+                classNames = await classRes.json();
+
+                // 2. Load Model
+                model = await tf.loadLayersModel(MODEL_URL);
+                
+                // Warm up model
+                const dummy = tf.zeros([1, 224, 224, 3]);
+                model.predict(dummy).dispose();
+                dummy.dispose();
+
+                statusDiv.style.display = 'none';
+                container.style.display = 'block';
+
+                // 3. Setup Webcam
+                setupWebcam();
+
+            } catch (err) {
+                console.error(err);
+                statusDiv.innerHTML = "❌ Failed to load model. (It might still be pushing to GitHub, try refreshing in a minute!)";
+                statusDiv.style.color = "red";
+            }
+        }
+
+        async function setupWebcam() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment', width: 640, height: 480 }
+                });
+                video.srcObject = stream;
+                video.addEventListener('loadeddata', () => {
+                    requestAnimationFrame(predictLoop);
+                });
+            } catch (err) {
+                statusDiv.style.display = 'block';
+                statusDiv.innerHTML = "❌ Camera access denied or not available.";
+            }
+        }
+
+        async function predictLoop() {
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                // Preprocess the frame for MobileNetV3 (224x224)
+                const tensor = tf.tidy(() => {
+                    // Capture frame
+                    const img = tf.browser.fromPixels(video);
+                    
+                    // Center crop to a square
+                    const size = Math.min(img.shape[0], img.shape[1]);
+                    const centerHeight = img.shape[0] / 2;
+                    const beginHeight = centerHeight - (size / 2);
+                    const centerWidth = img.shape[1] / 2;
+                    const beginWidth = centerWidth - (size / 2);
+                    const cropped = img.slice([beginHeight, beginWidth, 0], [size, size, 3]);
+
+                    // Resize to 224x224
+                    const resized = tf.image.resizeBilinear(cropped, [224, 224]);
+                    
+                    // Expand dims to match batch shape [1, 224, 224, 3]
+                    // (Note: Keras MobileNetV3 expects [0, 255] float32 values, so we don't divide by 255)
+                    return resized.expandDims(0).toFloat();
+                });
+
+                // Predict
+                const predictions = await model.predict(tensor).data();
+                tensor.dispose();
+
+                // Find max probability
+                let maxIdx = 0;
+                let maxProb = 0;
+                for (let i = 0; i < predictions.length; i++) {
+                    if (predictions[i] > maxProb) {
+                        maxProb = predictions[i];
+                        maxIdx = i;
+                    }
+                }
+
+                // Update UI if confidence > 50%
+                if (maxProb > 0.50) {
+                    predText.innerHTML = "🌿 " + classNames[maxIdx];
+                    confText.innerHTML = (maxProb * 100).toFixed(1) + "% Confidence";
+                } else {
+                    predText.innerHTML = "Scanning...";
+                    confText.innerHTML = "Low confidence / No plant detected";
+                }
+            }
+
+            // Loop
+            requestAnimationFrame(predictLoop);
+        }
+
+        // Start everything
+        init();
+    </script>
+</body>
+</html>
