@@ -153,3 +153,27 @@ FOR SELECT USING (true);
 
 CREATE POLICY "Users can contribute to federated knowledge" ON federated_knowledge
 FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- ============================================================
+-- CONTINUOUS LEARNING (DATA FLYWHEEL)
+-- ============================================================
+DROP TABLE IF EXISTS community_dataset;
+
+CREATE TABLE IF NOT EXISTS community_dataset (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE, -- Optional (can be anonymous)
+    plant_class_name TEXT NOT NULL,
+    image_base64 TEXT NOT NULL,
+    region TEXT DEFAULT 'Unknown',
+    season TEXT DEFAULT 'Unknown',
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    verified BOOLEAN DEFAULT FALSE -- Admin can verify later
+);
+
+ALTER TABLE community_dataset ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anyone can contribute to dataset" ON community_dataset
+FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Public can view dataset" ON community_dataset
+FOR SELECT USING (true);

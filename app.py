@@ -13,6 +13,7 @@ from community_manager import (
 import marketplace_db as mdb
 import garden_map_db as gmdb
 import federated_db as fdb
+import data_flywheel_db as fwdb
 import pandas as pd
 
 MODEL_PATH = "medicinal_leaf_mobilenetv3.keras"
@@ -304,18 +305,33 @@ with main_tab:
                     
                     try:
                         from gtts import gTTS
+                        from googletrans import Translator
                         import io
-                        if st.button("🔊 Listen to Pronunciation", key="audio_btn"):
-                            with st.spinner("Generating audio..."):
+                        
+                        st.markdown("#### 🗣️ Vernacular AI (Local Audio)")
+                        st.caption("Translate and listen in your regional language!")
+                        lang_map = {"English": "en", "Hindi": "hi", "Kannada": "kn", "Tamil": "ta", "Telugu": "te", "Malayalam": "ml"}
+                        sel_lang = st.selectbox("Select Language", list(lang_map.keys()), label_visibility="collapsed")
+                        
+                        if st.button("🔊 Translate & Listen", key="audio_btn"):
+                            with st.spinner(f"Translating to {sel_lang}..."):
                                 txt = f"{predicted_species}. Scientific name: {plant_info.get('scientific_name', '')}."
-                                sanskrit = plant_info.get('sanskrit_names', [])
-                                if sanskrit: txt += f" Sanskrit name: {sanskrit[0]}."
-                                tts = gTTS(text=txt, lang='en')
+                                benefits = ". ".join(plant_info.get("benefits", plant_info.get("uses", []))[:2])
+                                txt += f" Uses: {benefits}"
+                                
+                                dest_lang = lang_map[sel_lang]
+                                if dest_lang != "en":
+                                    translator = Translator()
+                                    txt = translator.translate(txt, dest=dest_lang).text
+                                    
+                                st.success(f"**Translation:** {txt}")
+                                
+                                tts = gTTS(text=txt, lang=dest_lang)
                                 fp = io.BytesIO()
                                 tts.write_to_fp(fp)
                                 st.audio(fp, format='audio/mp3')
                     except Exception as e:
-                        st.caption("Audio pronunciation currently unavailable.")
+                        st.caption(f"Audio/Translation unavailable: {e}")
                     
                     pc1, pc2, pc3 = st.columns(3)
                     pc1.info(f"**Family:**\n{plant_info.get('family','N/A')}")
@@ -346,7 +362,7 @@ with main_tab:
                         user_id = st.session_state["user_id"]
                         user_email = st.session_state.get("user_email", "User")
                         
-                        col1, col2 = st.columns(2)
+                        col1, col2, col3 = st.columns(3)
                         with col1:
                             if st.button("🪴 Save to My Digital Garden", use_container_width=True):
                                 if gmdb.save_to_garden(user_id, predicted_species, plant_info.get("scientific_name", ""), health_results["primary_deficiency"]):
@@ -358,16 +374,21 @@ with main_tab:
                                 st.write("Share where you found this plant!")
                                 lat = st.number_input("Latitude", value=20.5937, format="%.4f")
                                 lon = st.number_input("Longitude", value=78.9629, format="%.4f")
-                                reg = st.text_input("Region", placeholder="e.g. Western Ghats")
-                                clim = st.text_input("Climate", placeholder="e.g. Tropical")
-                                soil_type = st.text_input("Soil", placeholder="e.g. Red Laterite")
+                                region = st.text_input("Region", "Unknown")
+                                climate = st.text_input("Climate", "Unknown")
                                 if st.button("Drop Pin"):
-                                    if gmdb.pin_to_foraging_map(user_id, user_email, predicted_species, lat, lon, reg, clim, soil_type):
-                                        st.success("Pinned to the Foraging Map!")
+                                    if gmdb.add_foraging_pin(user_id, user_email.split('@')[0], predicted_species, lat, lon, region, climate):
+                                        st.success("Pin dropped!")
                                     else:
-                                        st.error("Failed to pin.")
+                                        st.error("Failed to drop pin.")
+                        with col3:
+                            if st.button("🔄 Confirm & Contribute to Dataset", use_container_width=True, help="Send this verified image to our Continuous Learning Data Flywheel!"):
+                                if fwdb.upload_to_flywheel(image, predicted_species, user_region, user_season, user_id):
+                                    st.success("Dataset improved! Thank you!")
+                                else:
+                                    st.error("Upload failed.")
                     else:
-                        st.info("🔒 Please log in from the sidebar to save to your Garden or pin to the Map.")
+                        st.info("Log in from the sidebar to save to your garden or contribute to the dataset!")
 
             with health_tab:
                 hc1, hc2 = st.columns([1, 1.2], gap="large")
