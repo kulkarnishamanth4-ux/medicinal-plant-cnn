@@ -2,17 +2,19 @@
 
 HerbScan AI is an AI-powered Computer Vision web application designed for **Medicinal Plant Species Identification**, **Visual Leaf Health & Deficiency Analysis**, and **Community-Driven Plant Trading**. 
 
-Built with **TensorFlow**, **EfficientNetB0**, **OpenCV**, **Supabase**, and **Streamlit**, HerbScan AI helps users identify medicinal herbs from leaf images, detect visual symptoms of key nutrient deficiencies, and securely trade plants with other enthusiasts.
+Built with **TensorFlow**, **MobileNetV3Large**, **OpenCV**, **Supabase**, and **Streamlit**, HerbScan AI helps users identify medicinal herbs from leaf images, detect visual symptoms of key nutrient deficiencies, and securely trade plants with other enthusiasts.
 
 ---
 
 ## 🌟 Key Features
 
-* **🌿 AI Species Classification**: Predicts medicinal plant species across 30+ classes with deep learning Transfer Learning (EfficientNetB0).
+* **🌿 AI Species Classification**: Predicts medicinal plant species across 19 unique classes (trained on 100 high-quality images per class) with lightweight, high-speed deep learning (MobileNetV3Large).
 * **📸 Direct Camera Capture**: Seamlessly open your device's camera within the web app to capture and classify leaves on the fly.
 * **🛒 P2P Medicinal Plant Marketplace**: A dedicated ecosystem for users to buy, sell, and trade medicinal plants, cuttings, and seeds.
 * **💬 In-App Secure Messaging**: Real-time, authenticated chat rooms for buyers and sellers to communicate, negotiate, and securely share images.
 * **🔒 Enterprise Security**: Fully integrated with Supabase Authentication and strict Row Level Security (RLS) policies to ensure private conversations and secure user data.
+* **🔊 Voice Pronunciation**: Dynamic Text-to-Speech (TTS) integration that reads out plant scientific and Sanskrit names.
+* **📝 Multi-Modal Metadata**: Intercepts and records environmental context (Season, Soil, Region) for unknown plants to build future Vision-Language datasets.
 * **🧘 Ayurvedic Botanical Profiles**: Automatically links predictions to our database, retrieving scientific names, Ayurvedic properties, active chemical constituents, and traditional uses.
 * **🔬 Visual Leaf Health & Deficiency Analyzer**:
   * **Color Space Decomposition (HSV/LAB)**: Quantifies healthy green tissue, chlorosis (yellowing), necrosis (browning/scorching), and anthocyanin accumulation (purpling).
@@ -37,7 +39,8 @@ Built with **TensorFlow**, **EfficientNetB0**, **OpenCV**, **Supabase**, and **S
 ├── security_scan.ps1                  # SAST and SCA Security Scanner 
 ├── deficiency_database.json           # Knowledge Base of Deficiencies & Organic Remedies
 ├── plant_database.json                # Ayurvedic & Botanical Metadata Database
-├── medicinal_leaf_efficientnet.keras  # Pre-trained EfficientNetB0 Keras Model Weights
+├── medicinal_leaf_mobilenetv3.keras   # Pre-trained MobileNetV3Large Keras Model Weights
+├── train_mobilenet.ipynb              # Google Colab Training Script
 ├── class_names.json                   # Class Label Mappings
 ├── predict.py                         # CLI Inference & Diagnostic Tool
 ├── requirements.txt                   # Dependency Specifications
