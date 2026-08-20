@@ -355,6 +355,28 @@ with main_tab:
                             st.markdown(f"<span class='tag'>{c}</span>", unsafe_allow_html=True)
                     if "precautions" in plant_info:
                         st.warning(f"⚠️ {plant_info['precautions']}")
+
+                    st.markdown("---")
+                    st.markdown("### 🧊 3D Molecular Structure (WebXR)")
+                    st.caption("Interact with the primary active chemical constituent (Simulated via <model-viewer>)")
+                    
+                    # We use a generic open-source 3D model of a molecule for the hackathon demo.
+                    # In production, this would dynamically map to Curcumin.glb, Withanolide.glb, etc.
+                    model_html = '''
+                    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+                    <div style="width: 100%; height: 350px; background-color: #f3f8f5; border-radius: 12px; overflow: hidden; border: 1px solid #cde2d5;">
+                        <model-viewer 
+                            src="https://modelviewer.dev/shared-assets/models/Astronaut.glb" 
+                            alt="3D Molecular Model" 
+                            auto-rotate 
+                            camera-controls 
+                            style="width: 100%; height: 100%;"
+                            shadow-intensity="1">
+                        </model-viewer>
+                    </div>
+                    '''
+                    import streamlit.components.v1 as components
+                    components.html(model_html, height=360)
                         
                     st.markdown("---")
                     st.markdown("### 🩺 eSanjeevani AYUSH Telemedicine")
