@@ -120,7 +120,7 @@
                 classNames = await classRes.json();
 
                 // 2. Load Model
-                model = await tf.loadLayersModel(MODEL_URL);
+                model = await tf.loadGraphModel(MODEL_URL);
                 
                 // Warm up model
                 const dummy = tf.zeros([1, 224, 224, 3]);
