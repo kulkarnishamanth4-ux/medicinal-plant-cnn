@@ -12,7 +12,7 @@ from community_manager import (
 )
 import marketplace_db as mdb
 
-MODEL_PATH = "medicinal_leaf_efficientnet.keras"
+MODEL_PATH = "medicinal_leaf_mobilenetv3.keras"
 CLASS_NAMES_PATH = "class_names.json"
 PLANT_DB_PATH = "plant_database.json"
 DEFICIENCY_DB_PATH = "deficiency_database.json"

@@ -6,7 +6,7 @@ import tensorflow as tf
 from PIL import Image
 from deficiency_analyzer import analyze_leaf_health
 
-MODEL_PATH = "medicinal_leaf_efficientnet.keras"
+MODEL_PATH = "medicinal_leaf_mobilenetv3.keras"
 CLASS_NAMES_PATH = "class_names.json"
 IMG_SIZE = (224, 224)
 
