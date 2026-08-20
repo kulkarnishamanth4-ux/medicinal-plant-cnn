@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Federated AI Trainer</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/knn-classifier@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f4f7f6; margin: 0; padding: 20px; text-align: center; color: #184c2e; }
+        #webcam { border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transform: scaleX(-1); max-width: 100%; }
+        .controls { margin-top: 20px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        input { padding: 10px 15px; font-size: 1rem; border-radius: 8px; border: 1px solid #ccc; width: 200px; margin-right: 10px; }
+        button { padding: 10px 20px; font-size: 1rem; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        #trainBtn { background: #2d8a53; color: white; }
+        #trainBtn:hover { background: #1d6b3f; }
+        #trainBtn:disabled { background: #ccc; cursor: not-allowed; }
+        #uploadBtn { background: #4a90e2; color: white; margin-left: 10px; }
+        #uploadBtn:disabled { background: #ccc; cursor: not-allowed; }
+        #status { margin: 15px 0; font-weight: bold; color: #5f7d6b; }
+        .pred-box { font-size: 1.5rem; color: #184c2e; font-weight: 800; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+    <video id="webcam" autoplay playsinline width="300" height="300"></video>
+    
+    <div class="controls">
+        <div id="status">⏳ Loading Base AI & Global Knowledge...</div>
+        <div>
+            <input type="text" id="className" placeholder="New Plant Name">
+            <button id="trainBtn" disabled>📸 Add Training Image</button>
+            <button id="uploadBtn" disabled>☁️ Sync to Global AI</button>
+        </div>
+        <div class="pred-box" id="prediction">Scanning...</div>
+        <div id="exampleCount" style="font-size: 0.8rem; margin-top: 10px; color: #666;"></div>
+    </div>
+
+    <script>
+        // We will replace these placeholders in python before rendering
+        const SUPABASE_URL = '{{SUPABASE_URL}}';
+        const SUPABASE_KEY = '{{SUPABASE_KEY}}';
+        const JWT_TOKEN = '{{JWT_TOKEN}}';
+        const USER_ID = '{{USER_ID}}';
+        
+        // GLOBAL_WEIGHTS is an array of objects: { plant_class_name, tensor_weights (string) }
+        const GLOBAL_WEIGHTS_RAW = {{GLOBAL_WEIGHTS_JSON}};
+
+        let supabaseClient = null;
+        if (SUPABASE_URL !== '{{'+'SUPABASE_URL'+'}}' && JWT_TOKEN !== '') {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+                global: { headers: { Authorization: `Bearer ${JWT_TOKEN}` } }
+            });
+        }
+
+        let classifier = knnClassifier.create();
+        let mobilenetModule;
+        const webcamElement = document.getElementById('webcam');
+        const statusEl = document.getElementById('status');
+        const predEl = document.getElementById('prediction');
+        const classInput = document.getElementById('className');
+        const trainBtn = document.getElementById('trainBtn');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const countEl = document.getElementById('exampleCount');
+
+        async function init() {
+            // Load base mobilenet
+            mobilenetModule = await mobilenet.load({version: 2, alpha: 1.0});
+            
+            // Load global weights into classifier
+            if (GLOBAL_WEIGHTS_RAW && GLOBAL_WEIGHTS_RAW.length > 0) {
+                let datasetObj = {};
+                GLOBAL_WEIGHTS_RAW.forEach(row => {
+                    try {
+                        const parsed = JSON.parse(row.tensor_weights); // { data: [...], shape: [...] }
+                        datasetObj[row.plant_class_name] = tf.tensor(parsed.data, parsed.shape);
+                    } catch(e) { console.error("Failed to parse weight for", row.plant_class_name); }
+                });
+                if (Object.keys(datasetObj).length > 0) {
+                    classifier.setClassifierDataset(datasetObj);
+                }
+            }
+
+            // Setup Webcam
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: 300, height: 300 } });
+            webcamElement.srcObject = stream;
+            
+            webcamElement.addEventListener('loadeddata', () => {
+                statusEl.innerText = "✅ AI Ready for Federated Training!";
+                trainBtn.disabled = false;
+                predictLoop();
+            });
+        }
+
+        trainBtn.addEventListener('click', () => {
+            const label = classInput.value.trim();
+            if(!label) { alert("Please enter a plant name!"); return; }
+            
+            const img = tf.browser.fromPixels(webcamElement);
+            const embedding = mobilenetModule.infer(img, true); // Extract features
+            classifier.addExample(embedding, label); // Train KNN instantly
+            img.dispose();
+            
+            statusEl.innerText = `✅ Added image for ${label}`;
+            uploadBtn.disabled = false;
+            updateCount();
+        });
+
+        uploadBtn.addEventListener('click', async () => {
+            const label = classInput.value.trim();
+            if(!label) return;
+            
+            // Serialize ONLY the newly added class weights
+            const dataset = classifier.getClassifierDataset();
+            if(!dataset[label]) return;
+            
+            uploadBtn.innerText = "Syncing...";
+            uploadBtn.disabled = true;
+
+            const dataSync = dataset[label].dataSync();
+            const payload = JSON.stringify({
+                data: Array.from(dataSync),
+                shape: dataset[label].shape
+            });
+
+            if(supabaseClient) {
+                const { error } = await supabaseClient.from('federated_knowledge').insert({
+                    user_id: USER_ID,
+                    plant_class_name: label,
+                    tensor_weights: payload
+                });
+                if(error) {
+                    alert("Sync failed: " + error.message);
+                    uploadBtn.innerText = "☁️ Sync to Global AI";
+                    uploadBtn.disabled = false;
+                } else {
+                    alert(`Knowledge for ${label} synced to the Global AI network!`);
+                    uploadBtn.innerText = "✅ Synced";
+                }
+            } else {
+                alert("Cannot sync: Not logged in.");
+                uploadBtn.innerText = "☁️ Sync to Global AI";
+            }
+        });
+
+        async function predictLoop() {
+            if (classifier.getNumClasses() > 0) {
+                const img = tf.browser.fromPixels(webcamElement);
+                const embedding = mobilenetModule.infer(img, true);
+                const res = await classifier.predictClass(embedding);
+                
+                if (res.confidences[res.label] > 0.6) {
+                    predEl.innerText = `💡 Detected: ${res.label} (${(res.confidences[res.label]*100).toFixed(0)}%)`;
+                } else {
+                    predEl.innerText = "Scanning...";
+                }
+                img.dispose();
+            }
+            updateCount();
+            requestAnimationFrame(predictLoop);
+        }
+        
+        function updateCount() {
+            if (classifier.getNumClasses() > 0) {
+                let str = "Local Memory: ";
+                const classes = classifier.getClassExampleCount();
+                for (const [key, val] of Object.entries(classes)) {
+                    str += `[${key}: ${val} imgs] `;
+                }
+                countEl.innerText = str;
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

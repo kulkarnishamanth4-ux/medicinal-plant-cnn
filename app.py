@@ -12,6 +12,7 @@ from community_manager import (
 )
 import marketplace_db as mdb
 import garden_map_db as gmdb
+import federated_db as fdb
 import pandas as pd
 
 MODEL_PATH = "medicinal_leaf_mobilenetv3.keras"
@@ -128,8 +129,9 @@ def render_auth_ui():
                     st.error(msg)
 
 # --- NAVIGATION TABS ---
-main_tab, garden_tab, map_tab, market_tab, msg_tab, gallery_tab = st.tabs([
+main_tab, fed_tab, garden_tab, map_tab, market_tab, msg_tab, gallery_tab = st.tabs([
     "🔬 Scan & Analyze",
+    "🧠 Federated AI",
     "🪴 My Garden",
     "🗺️ Foraging Map",
     "🛒 Marketplace",
@@ -416,6 +418,38 @@ with map_tab:
             st.markdown(f"**{pin['plant_name']}** spotted by {pin.get('user_name', 'Anonymous')} in {pin.get('region','Unknown')} (Lat: {pin['latitude']:.2f}, Lon: {pin['longitude']:.2f})")
     else:
         st.info("No pins on the map yet. Be the first to drop a pin!")
+
+# ============================================================
+# TAB 1.7: FEDERATED LEARNING
+# ============================================================
+with fed_tab:
+    st.markdown("## 🧠 Decentralized Federated Learning")
+    st.caption("Teach the AI a new plant locally, and share its mathematical memory with the world!")
+    if "user_id" not in st.session_state:
+        st.info("🔒 Please log in from the sidebar to contribute to the Global AI.")
+    else:
+        st.info("💡 **How it works:** Point your camera at a new plant, type its name, and click **Add Training Image** from different angles. When done, click **Sync**!")
+        
+        # Fetch global knowledge to pass to HTML
+        global_weights = fdb.get_federated_knowledge()
+        global_weights_json = json.dumps(global_weights)
+        
+        # Load the HTML template
+        try:
+            with open("federated_trainer.html", "r", encoding="utf-8") as f:
+                html_code = f.read()
+            
+            # Inject tokens and weights
+            html_code = html_code.replace("{{SUPABASE_URL}}", st.secrets["supabase"]["SUPABASE_URL"])
+            html_code = html_code.replace("{{SUPABASE_KEY}}", st.secrets["supabase"]["SUPABASE_KEY"])
+            html_code = html_code.replace("{{JWT_TOKEN}}", st.session_state.get("sb_access_token", ""))
+            html_code = html_code.replace("{{USER_ID}}", st.session_state["user_id"])
+            html_code = html_code.replace("{{GLOBAL_WEIGHTS_JSON}}", global_weights_json)
+            
+            import streamlit.components.v1 as components
+            components.html(html_code, height=600, scrolling=True)
+        except Exception as e:
+            st.error(f"Could not load trainer: {e}")
 
 # ============================================================
 # TAB 2: MARKETPLACE

@@ -132,3 +132,24 @@ FOR SELECT USING (true);
 
 CREATE POLICY "Users can insert foraging pins" ON foraging_map
 FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- ============================================================
+-- FEDERATED LEARNING
+-- ============================================================
+DROP TABLE IF EXISTS federated_knowledge;
+
+CREATE TABLE IF NOT EXISTS federated_knowledge (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    plant_class_name TEXT NOT NULL,
+    tensor_weights TEXT NOT NULL, -- Stored as JSON string
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE federated_knowledge ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Public can read federated knowledge" ON federated_knowledge
+FOR SELECT USING (true);
+
+CREATE POLICY "Users can contribute to federated knowledge" ON federated_knowledge
+FOR INSERT WITH CHECK (auth.uid() = user_id);
