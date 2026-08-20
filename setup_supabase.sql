@@ -88,3 +88,47 @@ FOR SELECT USING (
 
 CREATE POLICY "Users can insert their own messages" ON messages
 FOR INSERT WITH CHECK (auth.uid() = sender_id);
+
+-- ============================================================
+-- DIGITAL GARDEN & FORAGING MAP
+-- ============================================================
+
+DROP TABLE IF EXISTS digital_garden;
+DROP TABLE IF EXISTS foraging_map;
+
+CREATE TABLE IF NOT EXISTS digital_garden (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    plant_name TEXT NOT NULL,
+    scientific_name TEXT,
+    health_status TEXT,
+    notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS foraging_map (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    user_name TEXT,
+    plant_name TEXT NOT NULL,
+    latitude DOUBLE PRECISION NOT NULL,
+    longitude DOUBLE PRECISION NOT NULL,
+    region TEXT,
+    climate TEXT,
+    soil TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE digital_garden ENABLE ROW LEVEL SECURITY;
+ALTER TABLE foraging_map ENABLE ROW LEVEL SECURITY;
+
+-- 4. DIGITAL GARDEN: Only owner can read/insert
+CREATE POLICY "Users can manage their own digital garden" ON digital_garden
+FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+-- 5. FORAGING MAP: Public read, owner insert
+CREATE POLICY "Public can read foraging map" ON foraging_map
+FOR SELECT USING (true);
+
+CREATE POLICY "Users can insert foraging pins" ON foraging_map
+FOR INSERT WITH CHECK (auth.uid() = user_id);

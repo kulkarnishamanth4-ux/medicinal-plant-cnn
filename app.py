@@ -11,6 +11,8 @@ from community_manager import (
     get_unidentified_plants, get_all_submissions
 )
 import marketplace_db as mdb
+import garden_map_db as gmdb
+import pandas as pd
 
 MODEL_PATH = "medicinal_leaf_mobilenetv3.keras"
 CLASS_NAMES_PATH = "class_names.json"
@@ -126,8 +128,10 @@ def render_auth_ui():
                     st.error(msg)
 
 # --- NAVIGATION TABS ---
-main_tab, market_tab, msg_tab, gallery_tab = st.tabs([
+main_tab, garden_tab, map_tab, market_tab, msg_tab, gallery_tab = st.tabs([
     "🔬 Scan & Analyze",
+    "🪴 My Garden",
+    "🗺️ Foraging Map",
     "🛒 Marketplace",
     "💬 Messages",
     "🌍 Community Gallery"
@@ -297,6 +301,35 @@ with main_tab:
                     if "precautions" in plant_info:
                         st.warning(f"⚠️ {plant_info['precautions']}")
 
+                    st.markdown("---")
+                    st.markdown("### 🪴 Actions")
+                    if mdb._get_user():
+                        user_id = mdb._get_user().user.id
+                        user_email = mdb._get_user().user.email
+                        
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            if st.button("🪴 Save to My Digital Garden", use_container_width=True):
+                                if gmdb.save_to_garden(user_id, predicted_species, plant_info.get("scientific_name", ""), health_results["primary_deficiency"]):
+                                    st.success(f"Saved {predicted_species} to your Garden!")
+                                else:
+                                    st.error("Failed to save.")
+                        with col2:
+                            with st.popover("📍 Pin to Foraging Map", use_container_width=True):
+                                st.write("Share where you found this plant!")
+                                lat = st.number_input("Latitude", value=20.5937, format="%.4f")
+                                lon = st.number_input("Longitude", value=78.9629, format="%.4f")
+                                reg = st.text_input("Region", placeholder="e.g. Western Ghats")
+                                clim = st.text_input("Climate", placeholder="e.g. Tropical")
+                                soil_type = st.text_input("Soil", placeholder="e.g. Red Laterite")
+                                if st.button("Drop Pin"):
+                                    if gmdb.pin_to_foraging_map(user_id, user_email, predicted_species, lat, lon, reg, clim, soil_type):
+                                        st.success("Pinned to the Foraging Map!")
+                                    else:
+                                        st.error("Failed to pin.")
+                    else:
+                        st.info("🔒 Please log in from the sidebar to save to your Garden or pin to the Map.")
+
             with health_tab:
                 hc1, hc2 = st.columns([1, 1.2], gap="large")
                 with hc1:
@@ -339,6 +372,50 @@ with main_tab:
             <p style="color:#5f7d6b;">Upload a clear leaf image above for species classification, health diagnostics, and community identification.</p>
         </div>
         """, unsafe_allow_html=True)
+
+# ============================================================
+# TAB 1.5: MY DIGITAL GARDEN
+# ============================================================
+with garden_tab:
+    st.markdown("## 🪴 My Digital Garden")
+    st.caption("Your personal collection of scanned medicinal plants.")
+    if mdb._get_user():
+        uid = mdb._get_user().user.id
+        my_plants = gmdb.get_my_garden(uid)
+        if not my_plants:
+            st.info("Your garden is empty. Scan a plant and click 'Save to My Digital Garden'!")
+        else:
+            cols = st.columns(3)
+            for i, p in enumerate(my_plants):
+                with cols[i % 3]:
+                    st.markdown(f"""
+                    <div class="card-box" style="padding:15px; margin-bottom:15px;">
+                        <h3 style="margin:0; color:#184c2e;">🌿 {p['plant_name']}</h3>
+                        <div style="font-size:0.8rem; color:#5f7d6b; font-style:italic; margin-bottom:10px;">{p.get('scientific_name','')}</div>
+                        <div><b>Health:</b> {p.get('health_status','Unknown')}</div>
+                        <div style="font-size:0.8rem; color:#666; margin-top:10px;">Added: {p.get('created_at','')[:10]}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+    else:
+        st.warning("Please log in to view your Digital Garden.")
+
+# ============================================================
+# TAB 1.6: FORAGING MAP
+# ============================================================
+with map_tab:
+    st.markdown("## 🗺️ Live Foraging Map")
+    st.caption("See where the community has discovered medicinal plants in the wild.")
+    pins = gmdb.get_foraging_pins()
+    if pins:
+        df = pd.DataFrame(pins)
+        # st.map requires columns named 'latitude' and 'longitude'
+        st.map(df, size=20, color="#2d8a53")
+        
+        st.markdown("### 📋 Recent Discoveries")
+        for pin in pins[:5]:
+            st.markdown(f"**{pin['plant_name']}** spotted by {pin.get('user_name', 'Anonymous')} in {pin.get('region','Unknown')} (Lat: {pin['latitude']:.2f}, Lon: {pin['longitude']:.2f})")
+    else:
+        st.info("No pins on the map yet. Be the first to drop a pin!")
 
 # ============================================================
 # TAB 2: MARKETPLACE
