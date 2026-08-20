@@ -28,10 +28,14 @@ Built with **TensorFlow**, **MobileNetV3Large**, **OpenCV**, **Supabase**, and *
 
 * **🌍 Context-Aware Predictions (Late-Fusion)**: Fuses image data with environmental metadata (Region, Season) in a secondary Multi-Modal Neural Network to drastically improve identification accuracy.
 * **🌲 Deep Forest Mode (Offline PWA)**: A standalone Progressive Web App with a Service Worker that caches the AI model and UI to the user's phone. Works 100% offline using IndexedDB, allowing users to scan and save plants deep in the forest, then bulk-sync to the cloud when Wi-Fi is restored.
+* **🔄 Continuous Learning (Data Flywheel)**: Automates model improvement by allowing users to push verified field captures to a Supabase community dataset, simulating a production data-flywheel architecture.
+* **🗣️ Vernacular AI (Regional Translations)**: Breaks language barriers by dynamically translating scientific nomenclature and Ayurvedic benefits into Indian regional languages (Hindi, Kannada, Tamil, Telugu, Malayalam) with generated Text-to-Speech audio.
+* **⛓️ Blockchain Supply Chain Provenance**: Protects marketplace authenticity by generating immutable SHA-256 cryptographic block hashes for every medicinal plant listing, ensuring seed-to-shelf traceability.
+* **🩺 eSanjeevani Telemedicine Integration**: Bridges AI diagnostics with medical safety by providing a simulated booking portal for users to consult certified AYUSH doctors before consuming wild plants.
+* **🧊 WebXR 3D Molecular Overlays**: Uses Google's `<model-viewer>` component to render fully interactive, rotatable 3D WebXR models of the plant's active chemical constituents directly in the browser.
 
 ### 🔮 Planned Future Enhancements
 * **🧱 3D Reconstruction**: Photogrammetry implementation to provide 3D visual cues for the plants.
-* **⛓️ Blockchain Provenance**: Tokenize rare medicinal herbs in the marketplace as NFTs.
 
 ---
 
@@ -47,6 +51,8 @@ Built with **TensorFlow**, **MobileNetV3Large**, **OpenCV**, **Supabase**, and *
 ├── deficiency_analyzer.py             # Computer Vision Leaf Health & Deficiency Analyzer
 ├── marketplace_db.py                  # Supabase Auth, Marketplace, and Messaging Logic
 ├── garden_map_db.py                   # Digital Garden & Foraging Map Database Wrapper
+├── data_flywheel_db.py                # Supabase wrapper for Community Dataset
+├── continuous_learning.py             # Automated Script simulating Model Fine-Tuning
 ├── federated_db.py                    # Federated Learning Synchronization Logic
 ├── setup_supabase.sql                 # Database Schema and Row Level Security (RLS) Policies
 ├── security_scan.ps1                  # SAST and SCA Security Scanner 
