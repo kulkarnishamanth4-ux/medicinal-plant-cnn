@@ -4,8 +4,8 @@ import base64
 from io import BytesIO
 
 def _get_supabase() -> Client:
-    url = st.secrets["supabase"]["SUPABASE_URL"]
-    key = st.secrets["supabase"]["SUPABASE_KEY"]
+    url = st.secrets["supabase"]["url"]
+    key = st.secrets["supabase"]["key"]
     return create_client(url, key)
 
 def upload_to_flywheel(image_pil, plant_class_name: str, region: str, season: str, user_id: str = None):

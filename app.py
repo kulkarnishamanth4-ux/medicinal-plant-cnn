@@ -321,8 +321,8 @@ with main_tab:
                                 
                                 dest_lang = lang_map[sel_lang]
                                 if dest_lang != "en":
-                                    translator = Translator()
-                                    txt = translator.translate(txt, dest=dest_lang).text
+                                    from deep_translator import GoogleTranslator
+                                    txt = GoogleTranslator(source='auto', target=dest_lang).translate(txt)
                                     
                                 st.success(f"**Translation:** {txt}")
                                 
