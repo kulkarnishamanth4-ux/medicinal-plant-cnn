@@ -303,9 +303,9 @@ with main_tab:
 
                     st.markdown("---")
                     st.markdown("### 🪴 Actions")
-                    if mdb._get_user():
-                        user_id = mdb._get_user().user.id
-                        user_email = mdb._get_user().user.email
+                    if "user_id" in st.session_state:
+                        user_id = st.session_state["user_id"]
+                        user_email = st.session_state.get("user_email", "User")
                         
                         col1, col2 = st.columns(2)
                         with col1:
@@ -379,8 +379,8 @@ with main_tab:
 with garden_tab:
     st.markdown("## 🪴 My Digital Garden")
     st.caption("Your personal collection of scanned medicinal plants.")
-    if mdb._get_user():
-        uid = mdb._get_user().user.id
+    if "user_id" in st.session_state:
+        uid = st.session_state["user_id"]
         my_plants = gmdb.get_my_garden(uid)
         if not my_plants:
             st.info("Your garden is empty. Scan a plant and click 'Save to My Digital Garden'!")
