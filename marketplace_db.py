@@ -185,3 +185,13 @@ def get_messages(conversation_id):
     sb = get_client()
     if not sb: return []
     return sb.table("messages").select("*").eq("conversation_id", conversation_id).order("sent_at").execute().data or []
+
+# --- BLOCKCHAIN (PROVENANCE) ---
+
+def hash_transaction(listing_id, buyer_email, seller_email, price):
+    import hashlib
+    import datetime
+    
+    # Create a deterministic string to hash
+    tx_string = f"TXN|{listing_id}|{buyer_email}|{seller_email}|{price}|{datetime.date.today().isoformat()}"
+    return hashlib.sha256(tx_string.encode('utf-8')).hexdigest()

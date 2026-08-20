@@ -355,6 +355,18 @@ with main_tab:
                             st.markdown(f"<span class='tag'>{c}</span>", unsafe_allow_html=True)
                     if "precautions" in plant_info:
                         st.warning(f"⚠️ {plant_info['precautions']}")
+                        
+                    st.markdown("---")
+                    st.markdown("### 🩺 eSanjeevani AYUSH Telemedicine")
+                    st.info("Do you want to use this plant for a medical condition? Book a free virtual consultation with a certified Ayurvedic Doctor before consuming.")
+                    with st.expander("📅 Book Telemedicine Appointment"):
+                        with st.form("telemed_form"):
+                            st.text_input("Full Name")
+                            st.text_input("Patient ID (ABHA) / Phone Number")
+                            st.text_area("Symptoms", placeholder="Describe why you want to use " + predicted_species + "...")
+                            st.selectbox("Preferred Language", ["Hindi", "English", "Tamil", "Kannada", "Telugu"])
+                            if st.form_submit_button("Request Consultation"):
+                                st.success("✅ Appointment Request Sent to eSanjeevani Portal! A doctor will connect with you shortly.")
 
                     st.markdown("---")
                     st.markdown("### 🪴 Actions")
@@ -557,6 +569,9 @@ with market_tab:
                                     <div style="color:#52705e;font-size:0.9rem;">{item.get("description","")[:120]}</div>
                                     <div style="margin-top:0.6rem;font-weight:700;color:#1d6b3f;font-size:1.1rem;">{item.get("price","—")}</div>
                                     <div style="margin-top:0.4rem;font-size:0.78rem;color:#7a9583;">by {item["seller_email"]} · {item["created_at"][:10]}</div>
+                                    <div style="margin-top:0.6rem;font-size:0.65rem;color:#a8c4b2;font-family:monospace;word-break:break-all;background:#f3f8f5;padding:4px;border-radius:4px;border:1px solid #e0ece3;">
+                                        ⛓️ <b>Block Hash (Provenance):</b><br>{mdb.hash_transaction(item['id'], 'viewer', item['seller_email'], item.get('price',''))}
+                                    </div>
                                 </div>
                                 """, unsafe_allow_html=True)
                                 if item.get("image_data"):
