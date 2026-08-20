@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Deep Forest Offline Scanner</title>
+    <link rel="manifest" href="./manifest.json">
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { margin: 0; font-family: 'Inter', sans-serif; background: #0f3b26; color: white; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; }
+        header { width: 100%; padding: 15px; background: #1d6b3f; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; }
+        .network-status { padding: 5px 10px; border-radius: 15px; font-size: 0.8rem; font-weight: bold; background: rgba(0,0,0,0.3); }
+        .online { color: #84e8a1; } .offline { color: #ff9b9b; }
+        #container { position: relative; width: 100%; flex-grow: 1; background: #000; overflow: hidden; }
+        video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        #ui-overlay { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.95); padding: 15px 25px; border-radius: 20px; text-align: center; color: #124a29; box-shadow: 0 10px 20px rgba(0,0,0,0.5); width: 80%; max-width: 400px; z-index: 10; }
+        #prediction { font-size: 1.8rem; font-weight: 800; margin: 0; }
+        #confidence { font-size: 1rem; color: #52705e; font-weight: 600; margin: 5px 0 15px 0; }
+        button { background: #2d8a53; color: white; border: none; padding: 12px 20px; font-size: 1rem; border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer; }
+        button:active { background: #1d6b3f; }
+        #syncBtn { background: #4a90e2; margin-top: 10px; display: none; }
+        .reticle { position: absolute; top: 50%; left: 50%; width: 250px; height: 250px; transform: translate(-50%, -50%); border: 3px dashed rgba(255,255,255,0.6); border-radius: 20px; pointer-events: none; }
+    </style>
+</head>
+<body>
+    <header>
+        <div>🌲 Deep Forest Scanner</div>
+        <div id="networkStatus" class="network-status online">🟢 Online</div>
+    </header>
+    
+    <div id="container">
+        <video id="webcam" autoplay playsinline></video>
+        <div class="reticle"></div>
+        <div id="ui-overlay">
+            <p id="prediction">Loading AI...</p>
+            <p id="confidence">Please wait</p>
+            <button id="saveBtn" disabled>💾 Save to Offline Garden</button>
+            <button id="syncBtn">☁️ Sync to Cloud</button>
+        </div>
+    </div>
+
+    <script>
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').then(reg => {
+                    console.log('SW registered:', reg);
+                }).catch(err => console.log('SW registration failed:', err));
+            });
+        }
+
+        // Network Status
+        const netStatus = document.getElementById('networkStatus');
+        const syncBtn = document.getElementById('syncBtn');
+        function updateNetwork() {
+            if (navigator.onLine) {
+                netStatus.innerHTML = '🟢 Online';
+                netStatus.className = 'network-status online';
+                syncBtn.style.display = 'block';
+            } else {
+                netStatus.innerHTML = '🔴 Offline';
+                netStatus.className = 'network-status offline';
+                syncBtn.style.display = 'none';
+            }
+        }
+        window.addEventListener('online', updateNetwork);
+        window.addEventListener('offline', updateNetwork);
+        updateNetwork();
+
+        // IndexedDB Setup for Offline Storage
+        let db;
+        const request = indexedDB.open('HerbScanOfflineDB', 1);
+        request.onupgradeneeded = e => {
+            const db = e.target.result;
+            db.createObjectStore('offline_garden', { keyPath: 'id', autoIncrement: true });
+        };
+        request.onsuccess = e => { db = e.target.result; };
+
+        function saveToOfflineDB(plantName, confidence) {
+            const tx = db.transaction('offline_garden', 'readwrite');
+            const store = tx.objectStore('offline_garden');
+            store.add({
+                plant_name: plantName,
+                confidence: confidence,
+                timestamp: new Date().toISOString(),
+                synced: false
+            });
+            alert(`Saved ${plantName} to Offline Garden!`);
+        }
+
+        // TFJS Logic
+        const MODEL_URL = './tfjs_model/tfjs_model/model.json';
+        const CLASSES_URL = './class_names.json';
+        let model, classNames = [];
+        let currentPred = null, currentConf = null;
+
+        const video = document.getElementById('webcam');
+        const predText = document.getElementById('prediction');
+        const confText = document.getElementById('confidence');
+        const saveBtn = document.getElementById('saveBtn');
+
+        async function initAI() {
+            try {
+                const classRes = await fetch(CLASSES_URL);
+                classNames = await classRes.json();
+                model = await tf.loadGraphModel(MODEL_URL);
+                
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                video.srcObject = stream;
+                video.addEventListener('loadeddata', () => requestAnimationFrame(predictLoop));
+            } catch (err) {
+                predText.innerHTML = "❌ Error Loading AI";
+                confText.innerHTML = "Make sure you opened this while online first to cache the model.";
+            }
+        }
+
+        async function predictLoop() {
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                const tensor = tf.tidy(() => {
+                    const img = tf.browser.fromPixels(video);
+                    const size = Math.min(img.shape[0], img.shape[1]);
+                    const centerHeight = img.shape[0] / 2;
+                    const beginHeight = centerHeight - (size / 2);
+                    const centerWidth = img.shape[1] / 2;
+                    const beginWidth = centerWidth - (size / 2);
+                    const cropped = img.slice([beginHeight, beginWidth, 0], [size, size, 3]);
+                    const resized = tf.image.resizeBilinear(cropped, [224, 224]);
+                    return resized.expandDims(0).toFloat();
+                });
+
+                const predictions = await model.predict(tensor).data();
+                tensor.dispose();
+
+                let maxIdx = 0, maxProb = 0;
+                for (let i = 0; i < predictions.length; i++) {
+                    if (predictions[i] > maxProb) { maxProb = predictions[i]; maxIdx = i; }
+                }
+
+                if (maxProb > 0.50) {
+                    currentPred = classNames[maxIdx];
+                    currentConf = maxProb;
+                    predText.innerHTML = "🌿 " + currentPred;
+                    confText.innerHTML = (maxProb * 100).toFixed(1) + "% Match";
+                    saveBtn.disabled = false;
+                } else {
+                    predText.innerHTML = "Scanning...";
+                    confText.innerHTML = "Point at a leaf";
+                    saveBtn.disabled = true;
+                }
+            }
+            requestAnimationFrame(predictLoop);
+        }
+
+        saveBtn.addEventListener('click', () => {
+            if(currentPred) saveToOfflineDB(currentPred, currentConf);
+        });
+
+        // Supabase Sync (User must enter credentials or we can just give a reminder)
+        syncBtn.addEventListener('click', () => {
+            alert("To sync, please copy your offline discoveries to the main Streamlit app when you are back at your computer. (Automated sync requires logging in).");
+        });
+
+        initAI();
+    </script>
+</body>
+</html>

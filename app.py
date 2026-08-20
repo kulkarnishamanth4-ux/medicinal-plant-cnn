@@ -418,6 +418,9 @@ with main_tab:
 with garden_tab:
     st.markdown("## 🪴 My Digital Garden")
     st.caption("Your personal collection of scanned medicinal plants.")
+    
+    st.info("🌲 **Going off the grid?** [Install the Deep Forest Scanner](https://kulkarnishamanth4-ux.github.io/medicinal-plant-cnn/offline_scanner.html) to scan plants without internet!")
+    
     if "user_id" in st.session_state:
         uid = st.session_state["user_id"]
         my_plants = gmdb.get_my_garden(uid)
