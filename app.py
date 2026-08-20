@@ -85,7 +85,19 @@ def get_json(path):
         with open(path, "r", encoding="utf-8") as f: return json.load(f)
     return {}
 
+FUSION_MODEL_PATH = "multimodal_fusion.keras"
+
+@st.cache_resource
+def get_fusion_model():
+    if os.path.exists(FUSION_MODEL_PATH):
+        try:
+            return tf.keras.models.load_model(FUSION_MODEL_PATH)
+        except:
+            return None
+    return None
+
 model = get_model()
+fusion_model = get_fusion_model()
 class_names = get_json(CLASS_NAMES_PATH)
 plant_db = get_json(PLANT_DB_PATH)
 deficiency_db = get_json(DEFICIENCY_DB_PATH)
@@ -145,6 +157,15 @@ main_tab, fed_tab, garden_tab, map_tab, market_tab, msg_tab, gallery_tab = st.ta
 with main_tab:
     st.markdown("### 📷 Capture or Upload Leaf Image")
     input_mode = st.radio("Input method", ["📁 Upload File", "📸 Camera Capture", "🟢 Real-Time AR Scanner (Edge AI)"], horizontal=True, label_visibility="collapsed")
+    
+    user_region, user_season = "Unknown", "Unknown"
+    if input_mode in ["📁 Upload File", "📸 Camera Capture"]:
+        st.markdown("#### 🌍 Environmental Context (Optional)")
+        st.caption("Provide context to activate the Multi-Modal Neural Network for higher accuracy.")
+        ec1, ec2 = st.columns(2)
+        user_region = ec1.selectbox("Region", ["Unknown", "Tropical", "Arid", "Temperate", "Coastal", "Mountain"])
+        user_season = ec2.selectbox("Season", ["Unknown", "Summer", "Winter", "Monsoon", "Spring"])
+
     uploaded_file = None
     if input_mode == "📁 Upload File":
         uploaded_file = st.file_uploader("Choose a leaf image...", type=["jpg","jpeg","png","webp"], label_visibility="collapsed")
@@ -167,6 +188,22 @@ with main_tab:
         resized_img = image.resize(IMG_SIZE)
         img_array = np.expand_dims(np.asarray(resized_img, dtype=np.float32), axis=0)
         preds = model.predict(img_array, verbose=0)[0]
+        
+        # --- Multi-Modal Fusion ---
+        if fusion_model is not None and user_region != "Unknown" and user_season != "Unknown":
+            REGIONS = ["Tropical", "Arid", "Temperate", "Coastal", "Mountain"]
+            SEASONS = ["Summer", "Winter", "Monsoon", "Spring"]
+            reg_vec = np.zeros(len(REGIONS))
+            reg_vec[REGIONS.index(user_region)] = 1
+            sea_vec = np.zeros(len(SEASONS))
+            sea_vec[SEASONS.index(user_season)] = 1
+            
+            preds = fusion_model.predict([
+                np.expand_dims(preds, axis=0), 
+                np.expand_dims(reg_vec, axis=0), 
+                np.expand_dims(sea_vec, axis=0)
+            ], verbose=0)[0]
+            st.success("🌟 **Multi-Modal Prediction Applied!** Context-awareness activated for higher accuracy.")
         top_idx = int(np.argmax(preds))
         predicted_species = class_names[top_idx]
         species_confidence = float(preds[top_idx]) * 100
