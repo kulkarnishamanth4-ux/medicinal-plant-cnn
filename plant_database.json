@@ -1,72 +1,18 @@
 {
-    "Aloevera": {
-        "scientific_name": "Aloe barbadensis miller",
-        "family": "Asphodelaceae",
-        "common_names": ["Aloe Vera", "Ghritkumari", "Barbados Aloe", "Indian Aloe"],
-        "sanskrit_names": ["Kumari", "Ghrutakumari"],
-        "distribution": [
-            "India (Rajasthan, Andhra Pradesh, Gujarat, Tamil Nadu)",
-            "China",
-            "USA",
-            "Mexico",
-            "Australia",
-            "South Africa",
-            "Mediterranean region"
-        ],
-        "benefits": [
-            "Skin moisturization and healing",
-            "Soothing sunburn and minor burns",
-            "Anti-inflammatory properties",
-            "Laxative effects for constipation",
-            "Antibacterial and antifungal",
-            "Antioxidant properties",
-            "Wound healing acceleration",
-            "Digestive health improvement",
-            "Immune system support",
-            "Anti-aging properties"
-        ],
-        "ayurvedic_properties": {
-            "rasa": "Tikta (Bitter), Kashaya (Astringent)",
-            "guna": "Guru (Heavy), Snigdha (Oily)",
-            "virya": "Sheeta (Cooling)",
-            "vipaka": "Madhura (Sweet)",
-            "dosha_effects": "Pacifies Pitta and Kapha"
-        },
-        "parts_used": ["Leaf gel", "Leaf juice", "Dried latex"],
-        "traditional_uses": [
-            "Used in Ayurveda for skin ailments",
-            "Treats pimples and skin ulcers",
-            "Urinary problems treatment",
-            "Used as a general health tonic",
-            "Applied externally for wounds and burns"
-        ],
-        "therapeutic_indications": [
-            "Skin disorders",
-            "Constipation",
-            "Ulcers",
-            "Piles",
-            "Menstrual problems",
-            "Obesity",
-            "Diabetes",
-            "Cancer (adjunct therapy)"
-        ],
-        "active_constituents": [
-            "Anthraquinones (aloin, emodin)",
-            "Polysaccharides (acemannan)",
-            "Vitamins (A, C, E, B12)",
-            "Enzymes (bradykinase)",
-            "Minerals (calcium, magnesium, zinc)",
-            "Amino acids"
-        ],
-        "precautions": "Avoid during pregnancy. May cause abdominal cramps. Not for long-term internal use without supervision.",
-        "image_count": 118
-    },
-    
     "Amla": {
         "scientific_name": "Phyllanthus emblica",
         "family": "Phyllanthaceae",
-        "common_names": ["Indian Gooseberry", "Amalaki", "Dhatriphala", "Emblic Myrobalan"],
-        "sanskrit_names": ["Amalaki", "Dhatriphala", "Vayastha"],
+        "common_names": [
+            "Indian Gooseberry",
+            "Amalaki",
+            "Dhatriphala",
+            "Emblic Myrobalan"
+        ],
+        "sanskrit_names": [
+            "Amalaki",
+            "Dhatriphala",
+            "Vayastha"
+        ],
         "distribution": [
             "India (Madhya Pradesh, Darjeeling, Sikkim, Kashmir)",
             "Sri Lanka",
@@ -95,7 +41,13 @@
             "vipaka": "Madhura (Sweet)",
             "dosha_effects": "Pacifies all three doshas (Tridoshic)"
         },
-        "parts_used": ["Fruit", "Seeds", "Leaves", "Bark", "Roots"],
+        "parts_used": [
+            "Fruit",
+            "Seeds",
+            "Leaves",
+            "Bark",
+            "Roots"
+        ],
         "traditional_uses": [
             "One of the most important herbs in Ayurveda",
             "Key ingredient in Chyawanprash and Triphala",
@@ -128,12 +80,22 @@
         "precautions": "Generally safe. May cause dry skin in excess. Avoid in acute diarrhea.",
         "image_count": 67
     },
-    
     "Amruthaballi": {
         "scientific_name": "Tinospora cordifolia",
         "family": "Menispermaceae",
-        "common_names": ["Guduchi", "Giloy", "Heart-leaved Moonseed", "Amrita", "Gurcha"],
-        "sanskrit_names": ["Guduchi", "Amrita", "Madhuparni", "Chinnaruha"],
+        "common_names": [
+            "Guduchi",
+            "Giloy",
+            "Heart-leaved Moonseed",
+            "Amrita",
+            "Gurcha"
+        ],
+        "sanskrit_names": [
+            "Guduchi",
+            "Amrita",
+            "Madhuparni",
+            "Chinnaruha"
+        ],
         "distribution": [
             "India (throughout)",
             "Sri Lanka",
@@ -163,7 +125,12 @@
             "vipaka": "Madhura (Sweet)",
             "dosha_effects": "Pacifies Vata and Pitta, balances Kapha"
         },
-        "parts_used": ["Stem", "Roots", "Leaves", "Whole plant"],
+        "parts_used": [
+            "Stem",
+            "Roots",
+            "Leaves",
+            "Whole plant"
+        ],
         "traditional_uses": [
             "Known as 'Amrita' (nectar) in Ayurveda",
             "Used for chronic fever and debility",
@@ -196,12 +163,18 @@
         "precautions": "May lower blood sugar - monitor if diabetic. Avoid in pregnancy.",
         "image_count": 91
     },
-    
     "Arali": {
         "scientific_name": "Nothapodytes nimmoniana",
         "family": "Icacinaceae",
-        "common_names": ["Mallotus", "Nimmonia", "Koranda"],
-        "sanskrit_names": ["Kantaka", "Koranda"],
+        "common_names": [
+            "Mallotus",
+            "Nimmonia",
+            "Koranda"
+        ],
+        "sanskrit_names": [
+            "Kantaka",
+            "Koranda"
+        ],
         "distribution": [
             "India (Western Ghats, Eastern Ghats)",
             "China",
@@ -222,7 +195,12 @@
             "vipaka": "Katu (Pungent)",
             "dosha_effects": "Pacifies Vata and Kapha"
         },
-        "parts_used": ["Wood", "Bark", "Roots", "Leaves"],
+        "parts_used": [
+            "Wood",
+            "Bark",
+            "Roots",
+            "Leaves"
+        ],
         "traditional_uses": [
             "Used in Ayurveda for mental illness",
             "Treatment of skin diseases",
@@ -252,81 +230,18 @@
         "precautions": "Use only under professional supervision. Contains potent anti-cancer compounds.",
         "image_count": 89
     },
-    
-    "Astma_weed": {
-        "scientific_name": "Euphorbia hirta",
-        "family": "Euphorbiaceae",
-        "common_names": ["Asthma Weed", "Snakeweed", "Garden Spurge", "Dudhi"],
-        "sanskrit_names": ["Dugdhika", "Kshiraparni"],
-        "distribution": [
-            "India (throughout)",
-            "Myanmar",
-            "China",
-            "Africa",
-            "South America",
-            "Australia",
-            "Pantropical regions"
-        ],
-        "benefits": [
-            "Used in asthma and respiratory disorders",
-            "Antispasmodic and bronchodilator",
-            "Anti-inflammatory properties",
-            "Wound healing and skin conditions",
-            "Antibacterial and antifungal",
-            "Traditional remedy for intestinal parasites",
-            "Reduces fever and infections",
-            "Promotes lactation",
-            "Strengthens blood vessels",
-            "Hemostatic properties"
-        ],
-        "ayurvedic_properties": {
-            "rasa": "Katu (Pungent), Tikta (Bitter)",
-            "guna": "Laghu (Light), Ruksha (Dry)",
-            "virya": "Ushna (Hot)",
-            "vipaka": "Katu (Pungent)",
-            "dosha_effects": "Pacifies Kapha and Vata"
-        },
-        "parts_used": ["Whole plant", "Leaves", "Latex", "Roots"],
-        "traditional_uses": [
-            "Used for asthma and bronchitis",
-            "Treats vomiting of blood",
-            "Used for loose stools",
-            "Relieves chest pain",
-            "Treats skin disorders",
-            "Used for scabies and ringworm"
-        ],
-        "therapeutic_indications": [
-            "Asthma",
-            "Bronchitis",
-            "Haemorrhage",
-            "Diarrhoea",
-            "Dysentery",
-            "Skin diseases",
-            "Pimples",
-            "Scabies",
-            "Ringworm",
-            "Fever",
-            "Cough",
-            "Nervous disorders"
-        ],
-        "active_constituents": [
-            "Flavonoids (quercetin, rutin)",
-            "Terpenoids (euphorbiol)",
-            "Tannins",
-            "Saponins",
-            "Alkaloids",
-            "Phenolic compounds",
-            "Sterols"
-        ],
-        "precautions": "Use in moderation. Latex may be irritating to skin. Avoid during pregnancy.",
-        "image_count": 82
-    },
-    
     "Badipala": {
         "scientific_name": "Salvadora oleoides",
         "family": "Salvadoraceae",
-        "common_names": ["Vana tulasi", "Badipala", "Pilu"],
-        "sanskrit_names": ["Pilu", "Guda"],
+        "common_names": [
+            "Vana tulasi",
+            "Badipala",
+            "Pilu"
+        ],
+        "sanskrit_names": [
+            "Pilu",
+            "Guda"
+        ],
         "distribution": [
             "India (Rajasthan, Gujarat)",
             "Pakistan",
@@ -350,7 +265,13 @@
             "vipaka": "Katu (Pungent)",
             "dosha_effects": "Pacifies Vata and Kapha"
         },
-        "parts_used": ["Bark", "Roots", "Leaves", "Fruits", "Seeds"],
+        "parts_used": [
+            "Bark",
+            "Roots",
+            "Leaves",
+            "Fruits",
+            "Seeds"
+        ],
         "traditional_uses": [
             "Used in traditional medicine for digestive disorders",
             "Treats skin diseases",
@@ -377,12 +298,19 @@
         "precautions": "Use under professional supervision.",
         "image_count": 76
     },
-    
     "Balloon_Vine": {
         "scientific_name": "Cardiospermum halicacabum",
         "family": "Sapindaceae",
-        "common_names": ["Balloon Vine", "Heartseed", "Love in a Puff", "Winter Cherry"],
-        "sanskrit_names": ["Jyotishmati", "Latakasturi"],
+        "common_names": [
+            "Balloon Vine",
+            "Heartseed",
+            "Love in a Puff",
+            "Winter Cherry"
+        ],
+        "sanskrit_names": [
+            "Jyotishmati",
+            "Latakasturi"
+        ],
         "distribution": [
             "India (throughout)",
             "Africa",
@@ -413,7 +341,12 @@
             "vipaka": "Katu (Pungent)",
             "dosha_effects": "Pacifies Vata and Kapha"
         },
-        "parts_used": ["Whole plant", "Roots", "Leaves", "Seeds"],
+        "parts_used": [
+            "Whole plant",
+            "Roots",
+            "Leaves",
+            "Seeds"
+        ],
         "traditional_uses": [
             "Traditional treatment for rheumatism",
             "Used for abdominal pain",
@@ -445,12 +378,18 @@
         "precautions": "Use under professional supervision. May have abortifacient effects.",
         "image_count": 61
     },
-    
     "Bamboo": {
         "scientific_name": "Various species (Bambusa spp., Phyllostachys spp., Lophatherum gracile, Sasa senanensis, Melocanna baccifera)",
         "family": "Poaceae",
-        "common_names": ["Bamboo", "Medicinal Bamboo", "Bans"],
-        "sanskrit_names": ["Vamsha", "Keechaka"],
+        "common_names": [
+            "Bamboo",
+            "Medicinal Bamboo",
+            "Bans"
+        ],
+        "sanskrit_names": [
+            "Vamsha",
+            "Keechaka"
+        ],
         "distribution": [
             "India (throughout)",
             "China",
@@ -477,7 +416,13 @@
             "vipaka": "Madhura (Sweet)",
             "dosha_effects": "Pacifies Pitta and Kapha"
         },
-        "parts_used": ["Leaves", "Shoots", "Roots", "Silica", "Young shoots"],
+        "parts_used": [
+            "Leaves",
+            "Shoots",
+            "Roots",
+            "Silica",
+            "Young shoots"
+        ],
         "traditional_uses": [
             "Used in Ayurvedic formulations",
             "Bamboo silica for hair and bone health",
@@ -506,12 +451,20 @@
         "precautions": "Generally safe. Some species may contain cyanogenic glycosides in young shoots - proper cooking required.",
         "image_count": 118
     },
-    
     "Beans": {
         "scientific_name": "Phaseolus vulgaris (Common Bean), Vigna spp.",
         "family": "Fabaceae",
-        "common_names": ["Green Beans", "French Beans", "Rajma", "Cowpea", "Red Kidney Bean"],
-        "sanskrit_names": ["Mudga", "Hareen"],
+        "common_names": [
+            "Green Beans",
+            "French Beans",
+            "Rajma",
+            "Cowpea",
+            "Red Kidney Bean"
+        ],
+        "sanskrit_names": [
+            "Mudga",
+            "Hareen"
+        ],
         "distribution": [
             "India (throughout)",
             "Africa",
@@ -540,7 +493,11 @@
             "vipaka": "Madhura (Sweet)",
             "dosha_effects": "Pacifies Pitta and Kapha"
         },
-        "parts_used": ["Seeds", "Pods", "Leaves"],
+        "parts_used": [
+            "Seeds",
+            "Pods",
+            "Leaves"
+        ],
         "traditional_uses": [
             "Essential in Indian cuisine",
             "Used in Ayurvedic dietetics",
@@ -568,12 +525,20 @@
         "precautions": "Raw beans contain lectins which are toxic - must be properly cooked. May cause gas in sensitive individuals.",
         "image_count": 97
     },
-    
     "Betel": {
         "scientific_name": "Piper betle",
         "family": "Piperaceae",
-        "common_names": ["Betel Leaf", "Paan", "Vetrilai", "Tambula"],
-        "sanskrit_names": ["Tambula", "Saptasira", "Nagavalli"],
+        "common_names": [
+            "Betel Leaf",
+            "Paan",
+            "Vetrilai",
+            "Tambula"
+        ],
+        "sanskrit_names": [
+            "Tambula",
+            "Saptasira",
+            "Nagavalli"
+        ],
         "distribution": [
             "India (throughout)",
             "Southeast Asia",
@@ -604,7 +569,11 @@
             "vipaka": "Katu (Pungent)",
             "dosha_effects": "Pacifies Vata and Kapha, increases Pitta"
         },
-        "parts_used": ["Leaves", "Stems", "Roots"],
+        "parts_used": [
+            "Leaves",
+            "Stems",
+            "Roots"
+        ],
         "traditional_uses": [
             "Used in Ayurveda for digestive disorders",
             "Traditional mouth freshener",
@@ -633,12 +602,20 @@
         "precautions": "Long-term use (particularly with tobacco) is carcinogenic. Avoid during pregnancy.",
         "image_count": 114
     },
-    
     "Brahmi": {
         "scientific_name": "Bacopa monnieri",
         "family": "Plantaginaceae (formerly Scrophulariaceae)",
-        "common_names": ["Brahmi", "Water Hyssop", "Herb of Grace", "Thyme-leaved Gratiola"],
-        "sanskrit_names": ["Brahmi", "Saraswati", "Mandukaparni"],
+        "common_names": [
+            "Brahmi",
+            "Water Hyssop",
+            "Herb of Grace",
+            "Thyme-leaved Gratiola"
+        ],
+        "sanskrit_names": [
+            "Brahmi",
+            "Saraswati",
+            "Mandukaparni"
+        ],
         "distribution": [
             "India (plains and mangrove forests)",
             "Sri Lanka",
@@ -669,7 +646,11 @@
             "vipaka": "Madhura (Sweet)",
             "dosha_effects": "Pacifies Vata, Pitta, and Kapha (Tridoshic)"
         },
-        "parts_used": ["Whole plant", "Leaves", "Roots"],
+        "parts_used": [
+            "Whole plant",
+            "Leaves",
+            "Roots"
+        ],
         "traditional_uses": [
             "One of the most important brain tonics in Ayurveda",
             "Used to improve intelligence and memory",
@@ -705,12 +686,177 @@
         "precautions": "May interact with thyroid medications. Avoid during pregnancy.",
         "image_count": 104
     },
-    
-    "Bringaraja": {
+    "Aloe Vera": {
+        "scientific_name": "Aloe barbadensis miller",
+        "family": "Asphodelaceae",
+        "common_names": [
+            "Aloe Vera",
+            "Ghritkumari",
+            "Barbados Aloe",
+            "Indian Aloe"
+        ],
+        "sanskrit_names": [
+            "Kumari",
+            "Ghrutakumari"
+        ],
+        "distribution": [
+            "India (Rajasthan, Andhra Pradesh, Gujarat, Tamil Nadu)",
+            "China",
+            "USA",
+            "Mexico",
+            "Australia",
+            "South Africa",
+            "Mediterranean region"
+        ],
+        "benefits": [
+            "Skin moisturization and healing",
+            "Soothing sunburn and minor burns",
+            "Anti-inflammatory properties",
+            "Laxative effects for constipation",
+            "Antibacterial and antifungal",
+            "Antioxidant properties",
+            "Wound healing acceleration",
+            "Digestive health improvement",
+            "Immune system support",
+            "Anti-aging properties"
+        ],
+        "ayurvedic_properties": {
+            "rasa": "Tikta (Bitter), Kashaya (Astringent)",
+            "guna": "Guru (Heavy), Snigdha (Oily)",
+            "virya": "Sheeta (Cooling)",
+            "vipaka": "Madhura (Sweet)",
+            "dosha_effects": "Pacifies Pitta and Kapha"
+        },
+        "parts_used": [
+            "Leaf gel",
+            "Leaf juice",
+            "Dried latex"
+        ],
+        "traditional_uses": [
+            "Used in Ayurveda for skin ailments",
+            "Treats pimples and skin ulcers",
+            "Urinary problems treatment",
+            "Used as a general health tonic",
+            "Applied externally for wounds and burns"
+        ],
+        "therapeutic_indications": [
+            "Skin disorders",
+            "Constipation",
+            "Ulcers",
+            "Piles",
+            "Menstrual problems",
+            "Obesity",
+            "Diabetes",
+            "Cancer (adjunct therapy)"
+        ],
+        "active_constituents": [
+            "Anthraquinones (aloin, emodin)",
+            "Polysaccharides (acemannan)",
+            "Vitamins (A, C, E, B12)",
+            "Enzymes (bradykinase)",
+            "Minerals (calcium, magnesium, zinc)",
+            "Amino acids"
+        ],
+        "precautions": "Avoid during pregnancy. May cause abdominal cramps. Not for long-term internal use without supervision.",
+        "image_count": 118
+    },
+    "Asthma Weed": {
+        "scientific_name": "Euphorbia hirta",
+        "family": "Euphorbiaceae",
+        "common_names": [
+            "Asthma Weed",
+            "Snakeweed",
+            "Garden Spurge",
+            "Dudhi"
+        ],
+        "sanskrit_names": [
+            "Dugdhika",
+            "Kshiraparni"
+        ],
+        "distribution": [
+            "India (throughout)",
+            "Myanmar",
+            "China",
+            "Africa",
+            "South America",
+            "Australia",
+            "Pantropical regions"
+        ],
+        "benefits": [
+            "Used in asthma and respiratory disorders",
+            "Antispasmodic and bronchodilator",
+            "Anti-inflammatory properties",
+            "Wound healing and skin conditions",
+            "Antibacterial and antifungal",
+            "Traditional remedy for intestinal parasites",
+            "Reduces fever and infections",
+            "Promotes lactation",
+            "Strengthens blood vessels",
+            "Hemostatic properties"
+        ],
+        "ayurvedic_properties": {
+            "rasa": "Katu (Pungent), Tikta (Bitter)",
+            "guna": "Laghu (Light), Ruksha (Dry)",
+            "virya": "Ushna (Hot)",
+            "vipaka": "Katu (Pungent)",
+            "dosha_effects": "Pacifies Kapha and Vata"
+        },
+        "parts_used": [
+            "Whole plant",
+            "Leaves",
+            "Latex",
+            "Roots"
+        ],
+        "traditional_uses": [
+            "Used for asthma and bronchitis",
+            "Treats vomiting of blood",
+            "Used for loose stools",
+            "Relieves chest pain",
+            "Treats skin disorders",
+            "Used for scabies and ringworm"
+        ],
+        "therapeutic_indications": [
+            "Asthma",
+            "Bronchitis",
+            "Haemorrhage",
+            "Diarrhoea",
+            "Dysentery",
+            "Skin diseases",
+            "Pimples",
+            "Scabies",
+            "Ringworm",
+            "Fever",
+            "Cough",
+            "Nervous disorders"
+        ],
+        "active_constituents": [
+            "Flavonoids (quercetin, rutin)",
+            "Terpenoids (euphorbiol)",
+            "Tannins",
+            "Saponins",
+            "Alkaloids",
+            "Phenolic compounds",
+            "Sterols"
+        ],
+        "precautions": "Use in moderation. Latex may be irritating to skin. Avoid during pregnancy.",
+        "image_count": 82
+    },
+    "Bhringaraja": {
         "scientific_name": "Eclipta alba (also Eclipta prostrata)",
         "family": "Asteraceae",
-        "common_names": ["Bhringraj", "False Daisy", "Trailing Eclipta", "Kesharaj", "Eclipta"],
-        "sanskrit_names": ["Bhringaraja", "Kesharaj", "Kesharanjana", "Markava"],
+        "common_names": [
+            "Bhringraj",
+            "False Daisy",
+            "Trailing Eclipta",
+            "Kesharaj",
+            "Eclipta"
+        ],
+        "sanskrit_names": [
+            "Bhringaraja",
+            "Kesharaj",
+            "Kesharanjana",
+            "Markava"
+        ],
         "distribution": [
             "India (throughout)",
             "China",
@@ -742,7 +888,13 @@
             "vipaka": "Katu (Pungent)",
             "dosha_effects": "Pacifies Vata, Kapha, and Pitta (Tridoshic)"
         },
-        "parts_used": ["Whole plant", "Leaves", "Roots", "Juice", "Flowers"],
+        "parts_used": [
+            "Whole plant",
+            "Leaves",
+            "Roots",
+            "Juice",
+            "Flowers"
+        ],
         "traditional_uses": [
             "Renowned as 'King of herbs for hair'",
             "Used in Ayurveda for hair care",
@@ -775,5 +927,266 @@
         ],
         "precautions": "Generally safe. May cause mild gastrointestinal discomfort in some individuals. Avoid during pregnancy.",
         "image_count": 73
+    },
+    "Neem": {
+        "scientific_name": "Azadirachta indica",
+        "family": "Meliaceae",
+        "common_names": [
+            "Neem",
+            "Indian Lilac"
+        ],
+        "sanskrit_names": [
+            "Nimba"
+        ],
+        "ayurvedic_properties": {
+            "rasa": "Tikta (Bitter), Kashaya (Astringent)",
+            "guna": "Laghu (Light), Ruksha (Dry)",
+            "virya": "Sheeta (Cold)",
+            "vipaka": "Katu (Pungent)"
+        },
+        "benefits": [
+            "Purifies blood",
+            "Treats skin disorders (acne, eczema)",
+            "Supports oral health",
+            "Enhances immunity"
+        ],
+        "active_constituents": [
+            "Azadirachtin",
+            "Nimbin",
+            "Nimbidin"
+        ],
+        "precautions": "Avoid in pregnancy; excessive use may cause hypoglycemia."
+    },
+    "Ashwagandha": {
+        "scientific_name": "Withania somnifera",
+        "family": "Solanaceae",
+        "common_names": [
+            "Ashwagandha",
+            "Indian Ginseng",
+            "Winter Cherry"
+        ],
+        "sanskrit_names": [
+            "Ashwagandha"
+        ],
+        "ayurvedic_properties": {
+            "rasa": "Tikta (Bitter), Katu (Pungent), Madhura (Sweet)",
+            "guna": "Laghu (Light), Snigdha (Unctuous)",
+            "virya": "Ushna (Hot)",
+            "vipaka": "Madhura (Sweet)"
+        },
+        "benefits": [
+            "Reduces stress and anxiety",
+            "Improves brain function and memory",
+            "Boosts testosterone and fertility in men",
+            "Increases muscle mass and strength"
+        ],
+        "active_constituents": [
+            "Withanolides",
+            "Alkaloids",
+            "Sitoindosides"
+        ],
+        "precautions": "May interact with thyroid, blood pressure, and blood sugar medications."
+    },
+    "Tulsi": {
+        "scientific_name": "Ocimum tenuiflorum",
+        "family": "Lamiaceae",
+        "common_names": [
+            "Holy Basil",
+            "Tulsi"
+        ],
+        "sanskrit_names": [
+            "Tulasi"
+        ],
+        "ayurvedic_properties": {
+            "rasa": "Katu (Pungent), Tikta (Bitter)",
+            "guna": "Laghu (Light), Ruksha (Dry), Tikshna (Sharp)",
+            "virya": "Ushna (Hot)",
+            "vipaka": "Katu (Pungent)"
+        },
+        "benefits": [
+            "Relieves stress and anxiety",
+            "Improves respiratory health (coughs, colds)",
+            "Enhances immunity",
+            "Supports heart health"
+        ],
+        "active_constituents": [
+            "Eugenol",
+            "Ursolic Acid",
+            "Rosmarinic Acid"
+        ],
+        "precautions": "May slow blood clotting; use caution before surgery."
+    },
+    "Turmeric": {
+        "scientific_name": "Curcuma longa",
+        "family": "Zingiberaceae",
+        "common_names": [
+            "Turmeric",
+            "Haldi"
+        ],
+        "sanskrit_names": [
+            "Haridra"
+        ],
+        "ayurvedic_properties": {
+            "rasa": "Tikta (Bitter), Katu (Pungent)",
+            "guna": "Ruksha (Dry), Laghu (Light)",
+            "virya": "Ushna (Hot)",
+            "vipaka": "Katu (Pungent)"
+        },
+        "benefits": [
+            "Powerful anti-inflammatory",
+            "Strong antioxidant",
+            "Improves brain function",
+            "Lowers risk of heart disease"
+        ],
+        "active_constituents": [
+            "Curcumin",
+            "Demethoxycurcumin"
+        ],
+        "precautions": "High doses may cause stomach upset; can act as a blood thinner."
+    },
+    "Ginger": {
+        "scientific_name": "Zingiber officinale",
+        "family": "Zingiberaceae",
+        "common_names": [
+            "Ginger",
+            "Adrak"
+        ],
+        "sanskrit_names": [
+            "Ardraka",
+            "Shunthi"
+        ],
+        "ayurvedic_properties": {
+            "rasa": "Katu (Pungent)",
+            "guna": "Guru (Heavy), Ruksha (Dry), Tikshna (Sharp)",
+            "virya": "Ushna (Hot)",
+            "vipaka": "Madhura (Sweet)"
+        },
+        "benefits": [
+            "Treats nausea and morning sickness",
+            "Reduces muscle pain and soreness",
+            "Lowers blood sugars",
+            "Helps treat chronic indigestion"
+        ],
+        "active_constituents": [
+            "Gingerol",
+            "Shogaols",
+            "Zingerone"
+        ],
+        "precautions": "May increase bleeding risk; can interact with blood thinners."
+    },
+    "Mint": {
+        "scientific_name": "Mentha spicata",
+        "family": "Lamiaceae",
+        "common_names": [
+            "Mint",
+            "Pudina",
+            "Spearmint"
+        ],
+        "sanskrit_names": [
+            "Pudina"
+        ],
+        "ayurvedic_properties": {
+            "rasa": "Katu (Pungent)",
+            "guna": "Laghu (Light), Ruksha (Dry)",
+            "virya": "Ushna (Hot)",
+            "vipaka": "Katu (Pungent)"
+        },
+        "benefits": [
+            "Improves digestion",
+            "Relieves symptoms of IBS",
+            "Relieves cold and asthma symptoms",
+            "Freshens breath"
+        ],
+        "active_constituents": [
+            "Menthol",
+            "Menthone",
+            "Limonene"
+        ],
+        "precautions": "Can trigger GERD symptoms in some individuals."
+    },
+    "Rosemary": {
+        "scientific_name": "Salvia rosmarinus",
+        "family": "Lamiaceae",
+        "common_names": [
+            "Rosemary"
+        ],
+        "sanskrit_names": [
+            "Rusmari"
+        ],
+        "ayurvedic_properties": {
+            "rasa": "Tikta (Bitter), Katu (Pungent)",
+            "guna": "Laghu (Light), Ruksha (Dry)",
+            "virya": "Ushna (Hot)",
+            "vipaka": "Katu (Pungent)"
+        },
+        "benefits": [
+            "Improves memory and concentration",
+            "Promotes hair growth",
+            "Relieves muscle pain",
+            "Rich in antioxidants"
+        ],
+        "active_constituents": [
+            "Rosmarinic acid",
+            "Carnosic acid",
+            "Eucalyptol"
+        ],
+        "precautions": "Avoid in large doses during pregnancy."
+    },
+    "Eucalyptus": {
+        "scientific_name": "Eucalyptus globulus",
+        "family": "Myrtaceae",
+        "common_names": [
+            "Eucalyptus",
+            "Nilgiri"
+        ],
+        "sanskrit_names": [
+            "Tailaparna"
+        ],
+        "ayurvedic_properties": {
+            "rasa": "Katu (Pungent), Tikta (Bitter)",
+            "guna": "Laghu (Light), Snigdha (Unctuous)",
+            "virya": "Ushna (Hot)",
+            "vipaka": "Katu (Pungent)"
+        },
+        "benefits": [
+            "Clears respiratory tract",
+            "Relieves cold and asthma",
+            "Soothes muscle pain (oil)",
+            "Natural insect repellent"
+        ],
+        "active_constituents": [
+            "Eucalyptol (Cineole)",
+            "Alpha-pinene"
+        ],
+        "precautions": "Oil must be diluted before topical application; toxic if ingested."
+    },
+    "Ashoka Plant": {
+        "scientific_name": "Saraca asoca",
+        "family": "Fabaceae",
+        "common_names": [
+            "Ashoka",
+            "Sita Ashok"
+        ],
+        "sanskrit_names": [
+            "Ashoka"
+        ],
+        "ayurvedic_properties": {
+            "rasa": "Kashaya (Astringent), Tikta (Bitter)",
+            "guna": "Laghu (Light), Ruksha (Dry)",
+            "virya": "Sheeta (Cold)",
+            "vipaka": "Katu (Pungent)"
+        },
+        "benefits": [
+            "Manages gynecological disorders",
+            "Reduces menstrual pain and cramps",
+            "Treats bleeding disorders",
+            "Improves skin complexion"
+        ],
+        "active_constituents": [
+            "Tannins",
+            "Catechol",
+            "Flavonoids"
+        ],
+        "precautions": "Avoid during pregnancy unless advised by an Ayurvedic physician."
     }
 }
