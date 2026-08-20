@@ -21,11 +21,16 @@ Built with **TensorFlow**, **MobileNetV3Large**, **OpenCV**, **Supabase**, and *
   * **Interveinal Pattern Extraction**: Detects interveinal chlorosis patterns (common in Iron & Magnesium deficiencies).
   * **Leaf Health Index (0–100%)**: Calculates overall leaf tissue integrity.
   * **Color-Coded Diagnostic Heatmap Overlay**: Visual segmentation mask highlighting healthy vs. damaged leaf zones.
+* **🟢 Zero-Latency Edge AI (AR Scanner)**: A custom WebRTC camera integration that runs `TensorFlow.js` entirely in the user's browser, enabling real-time 30FPS inference without any server latency.
+* **🪴 My Digital Garden**: A personal, private inventory where users can save their scanned plants, track their health status, and add custom notes.
+* **🗺️ Live Foraging Map**: A community-driven interactive globe where users can drop GPS pins of medicinal plants they discover in the wild.
+* **🧠 Decentralized Federated Learning**: An advanced browser-based AI trainer. Users can teach the AI entirely new plant species using local KNN embeddings, and securely sync those mathematical weights to a global database for other users to download instantly.
 
 ### 🔮 Planned Future Enhancements
 
-* **🧠 Localized Personal AI Models**: Allow users to fine-tune personal, private versions of the model adapted to the specific geographical variations of plants in their region.
 * **🌍 Context-Aware Predictions**: Fuse image data with metadata (geolocation, season, climate) in a multi-modal neural network to drastically improve identification accuracy.
+* **🧱 3D Reconstruction**: Photogrammetry implementation to provide 3D visual cues for the plants.
+* **⛓️ Blockchain Provenance**: Tokenize rare medicinal herbs in the marketplace as NFTs.
 
 ---
 
@@ -33,13 +38,18 @@ Built with **TensorFlow**, **MobileNetV3Large**, **OpenCV**, **Supabase**, and *
 
 ```text
 ├── app.py                             # Interactive Streamlit Web Application
+├── ar_scanner.html                    # Custom WebRTC Edge AI Scanner Component
+├── federated_trainer.html             # Browser-based Federated Learning KNN Trainer
 ├── deficiency_analyzer.py             # Computer Vision Leaf Health & Deficiency Analyzer
 ├── marketplace_db.py                  # Supabase Auth, Marketplace, and Messaging Logic
+├── garden_map_db.py                   # Digital Garden & Foraging Map Database Wrapper
+├── federated_db.py                    # Federated Learning Synchronization Logic
 ├── setup_supabase.sql                 # Database Schema and Row Level Security (RLS) Policies
 ├── security_scan.ps1                  # SAST and SCA Security Scanner 
 ├── deficiency_database.json           # Knowledge Base of Deficiencies & Organic Remedies
 ├── plant_database.json                # Ayurvedic & Botanical Metadata Database
 ├── medicinal_leaf_mobilenetv3.keras   # Pre-trained MobileNetV3Large Keras Model Weights
+├── tfjs_model/                        # TensorFlow.js GraphModel for Edge Inference
 ├── train_mobilenet.ipynb              # Google Colab Training Script
 ├── class_names.json                   # Class Label Mappings
 ├── predict.py                         # CLI Inference & Diagnostic Tool
