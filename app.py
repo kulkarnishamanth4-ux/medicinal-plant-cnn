@@ -535,8 +535,8 @@ with fed_tab:
                 html_code = f.read()
             
             # Inject tokens and weights
-            html_code = html_code.replace("{{SUPABASE_URL}}", st.secrets["supabase"]["SUPABASE_URL"])
-            html_code = html_code.replace("{{SUPABASE_KEY}}", st.secrets["supabase"]["SUPABASE_KEY"])
+            html_code = html_code.replace("{{SUPABASE_URL}}", st.secrets["supabase"]["url"])
+            html_code = html_code.replace("{{SUPABASE_KEY}}", st.secrets["supabase"]["key"])
             html_code = html_code.replace("{{JWT_TOKEN}}", st.session_state.get("sb_access_token", ""))
             html_code = html_code.replace("{{USER_ID}}", st.session_state["user_id"])
             html_code = html_code.replace("{{GLOBAL_WEIGHTS_JSON}}", global_weights_json)
@@ -797,6 +797,6 @@ with gallery_tab:
 st.markdown("""
 <div class="footer">
     HerbScan AI · Plant ID · Health Diagnostics · Marketplace · Messaging · Community Gallery<br>
-    Built with TensorFlow + EfficientNetB0 + OpenCV + Supabase + Streamlit
+    Built with TensorFlow + MobileNetV3 + OpenCV + Supabase + Streamlit
 </div>
 """, unsafe_allow_html=True)

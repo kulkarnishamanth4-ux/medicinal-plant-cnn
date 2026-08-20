@@ -5,8 +5,8 @@ from supabase import create_client, Client
 
 def _get_supabase() -> Client:
     """Helper to initialize Supabase client"""
-    url = st.secrets["supabase"]["SUPABASE_URL"]
-    key = st.secrets["supabase"]["SUPABASE_KEY"]
+    url = st.secrets["supabase"]["url"]
+    key = st.secrets["supabase"]["key"]
     return create_client(url, key)
 
 def upload_federated_weights(user_id: str, plant_class_name: str, tensor_weights: str):

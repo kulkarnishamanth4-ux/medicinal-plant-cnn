@@ -4,8 +4,8 @@ from supabase import create_client, Client
 
 def _get_supabase() -> Client:
     """Helper to initialize Supabase client"""
-    url = st.secrets["supabase"]["SUPABASE_URL"]
-    key = st.secrets["supabase"]["SUPABASE_KEY"]
+    url = st.secrets["supabase"]["url"]
+    key = st.secrets["supabase"]["key"]
     return create_client(url, key)
 
 def save_to_garden(user_id: str, plant_name: str, scientific_name: str, health_status: str, notes: str = ""):
