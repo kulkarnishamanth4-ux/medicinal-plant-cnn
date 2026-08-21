@@ -107,19 +107,7 @@ if model is None or not class_names:
     st.error("Model or class_names.json missing. Upload them to continue.")
     st.stop()
 
-# --- HERO ---
-st.markdown("""
-<div class="hero">
-    <div class="hero-badge">⚡ AI Plant Classification & Community Identification</div>
-    <div class="hero-title">HerbScan AI 🌿</div>
-    <div class="hero-sub">Identify medicinal plants, analyze leaf health deficiencies, and help the community identify unknown species.</div>
-</div>
-""", unsafe_allow_html=True)
-
 def render_auth_ui():
-    st.markdown("### 🔒 Secure Authentication Required")
-    st.info("You must log in with a secure account to access the Marketplace and Messages.")
-    
     auth_mode = st.radio("Choose action", ["Login", "Sign Up"], horizontal=True, label_visibility="collapsed")
     with st.form("auth_form"):
         email = st.text_input("Email")
@@ -140,6 +128,30 @@ def render_auth_ui():
                     st.rerun()
                 else:
                     st.error(msg)
+
+# --- HERO & TOP NAV ---
+hero_col, auth_col = st.columns([3.5, 1])
+with hero_col:
+    st.markdown("""
+    <div class="hero">
+        <div class="hero-badge">⚡ AI Plant Classification & Community Identification</div>
+        <div class="hero-title">HerbScan AI 🌿</div>
+        <div class="hero-sub">Identify medicinal plants, analyze leaf health deficiencies, and help the community identify unknown species.</div>
+    </div>
+    """, unsafe_allow_html=True)
+with auth_col:
+    st.markdown("<div style='margin-top: 25px;'></div>", unsafe_allow_html=True)
+    if "sb_access_token" not in st.session_state:
+        with st.popover("🔑 Login / Sign Up", use_container_width=True):
+            st.markdown("#### Secure Login")
+            render_auth_ui()
+    else:
+        me = st.session_state.get("user_email", "User")
+        with st.popover(f"👤 {me.split('@')[0]}", use_container_width=True):
+            st.caption(f"**{me}**")
+            if st.button("Logout", use_container_width=True):
+                mdb.logout()
+                st.rerun()
 
 # --- NAVIGATION TABS ---
 main_tab, fed_tab, garden_tab, map_tab, market_tab, msg_tab, gallery_tab = st.tabs([
@@ -555,15 +567,8 @@ with market_tab:
     else:
         # --- Authentication Session ---
         if "sb_access_token" not in st.session_state:
-            render_auth_ui()
+            st.info("Please log in from the top right corner to access the Marketplace.")
         else:
-            me = st.session_state.get("user_email", "User")
-            c1, c2 = st.columns([4, 1])
-            c1.caption(f"Logged in as **{me}**")
-            if c2.button("Logout", key="logout_mp"):
-                mdb.logout()
-                st.rerun()
-
             mp_view = st.radio("View", ["🛍️ Browse Listings", "➕ Create Listing", "📦 My Listings"], horizontal=True, label_visibility="collapsed")
 
             # --- Browse Listings ---
@@ -659,7 +664,7 @@ with msg_tab:
         st.warning("⚠️ **Messaging requires Supabase.** Add your Supabase `url` and `key` to `.streamlit/secrets.toml` to enable this feature.")
     else:
         if "sb_access_token" not in st.session_state:
-            st.info("Please log in using the **🛒 Marketplace** tab first.")
+            st.info("Please log in from the top right corner to access Messages.")
         else:
             me = st.session_state.get("user_email", "")
             convos = mdb.get_user_conversations()
