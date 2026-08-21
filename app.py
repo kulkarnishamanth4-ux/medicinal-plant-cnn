@@ -197,32 +197,36 @@ with main_tab:
             st.error("AR Scanner component missing.")
 
     if uploaded_file is not None:
-        image = Image.open(uploaded_file).convert("RGB")
-        resized_img = image.resize(IMG_SIZE)
-        img_array = np.expand_dims(np.asarray(resized_img, dtype=np.float32), axis=0)
-        preds = model.predict(img_array, verbose=0)[0]
-        
-        # --- Multi-Modal Fusion ---
-        if fusion_model is not None and user_region != "Unknown" and user_season != "Unknown":
-            REGIONS = ["Tropical", "Arid", "Temperate", "Coastal", "Mountain"]
-            SEASONS = ["Summer", "Winter", "Monsoon", "Spring"]
-            reg_vec = np.zeros(len(REGIONS))
-            reg_vec[REGIONS.index(user_region)] = 1
-            sea_vec = np.zeros(len(SEASONS))
-            sea_vec[SEASONS.index(user_season)] = 1
+        try:
+            image = Image.open(uploaded_file).convert("RGB")
+            resized_img = image.resize(IMG_SIZE)
+            img_array = np.expand_dims(np.asarray(resized_img, dtype=np.float32), axis=0)
+            preds = model.predict(img_array, verbose=0)[0]
             
-            preds = fusion_model.predict([
-                np.expand_dims(preds, axis=0), 
-                np.expand_dims(reg_vec, axis=0), 
-                np.expand_dims(sea_vec, axis=0)
-            ], verbose=0)[0]
-            st.success("🌟 **Multi-Modal Prediction Applied!** Context-awareness activated for higher accuracy.")
-        top_idx = int(np.argmax(preds))
-        predicted_species = class_names[top_idx]
-        species_confidence = float(preds[top_idx]) * 100
-        health_results = analyze_leaf_health(image)
-        plant_info = plant_db.get(predicted_species, {})
-        deficiency_info = deficiency_db.get(health_results["primary_deficiency"], deficiency_db.get("Healthy", {}))
+            # --- Multi-Modal Fusion ---
+            if fusion_model is not None and user_region != "Unknown" and user_season != "Unknown":
+                REGIONS = ["Tropical", "Arid", "Temperate", "Coastal", "Mountain"]
+                SEASONS = ["Summer", "Winter", "Monsoon", "Spring"]
+                reg_vec = np.zeros(len(REGIONS))
+                reg_vec[REGIONS.index(user_region)] = 1
+                sea_vec = np.zeros(len(SEASONS))
+                sea_vec[SEASONS.index(user_season)] = 1
+                
+                preds = fusion_model.predict([
+                    np.expand_dims(preds, axis=0), 
+                    np.expand_dims(reg_vec, axis=0), 
+                    np.expand_dims(sea_vec, axis=0)
+                ], verbose=0)[0]
+                st.success("🌟 **Multi-Modal Prediction Applied!** Context-awareness activated for higher accuracy.")
+            top_idx = int(np.argmax(preds))
+            predicted_species = class_names[top_idx]
+            species_confidence = float(preds[top_idx]) * 100
+            health_results = analyze_leaf_health(image)
+            plant_info = plant_db.get(predicted_species, {})
+            deficiency_info = deficiency_db.get(health_results["primary_deficiency"], deficiency_db.get("Healthy", {}))
+        except Exception as e:
+            st.error(f"Error processing image or running prediction: {str(e)}")
+            st.stop()
 
         is_low_confidence = species_confidence < CONFIDENCE_THRESHOLD
 
