@@ -321,7 +321,6 @@ with main_tab:
                     
                     try:
                         from gtts import gTTS
-                        from googletrans import Translator
                         import io
                         
                         st.markdown("#### 🗣️ Vernacular AI (Local Audio)")
@@ -356,11 +355,15 @@ with main_tab:
                     if "ayurvedic_properties" in plant_info:
                         st.markdown("#### 🧘 Ayurvedic Classification")
                         ay = plant_info["ayurvedic_properties"]
+                        
+                        def ayur_box(title, val):
+                            return f"<div style='background:#fff; border:1px solid #dce8e0; border-radius:12px; padding:12px;'><div style='font-size:0.8rem; color:#5f7d6b; font-weight:600; text-transform:uppercase;'>{title}</div><div style='font-size:1.1rem; color:#124a29; font-weight:700; margin-top:4px; line-height:1.2; word-wrap:break-word;'>{val}</div></div>"
+                        
                         a1,a2,a3,a4 = st.columns(4)
-                        a1.metric("Rasa", ay.get("rasa","N/A"))
-                        a2.metric("Guna", ay.get("guna","N/A"))
-                        a3.metric("Virya", ay.get("virya","N/A"))
-                        a4.metric("Vipaka", ay.get("vipaka","N/A"))
+                        a1.markdown(ayur_box("Rasa", ay.get("rasa","N/A")), unsafe_allow_html=True)
+                        a2.markdown(ayur_box("Guna", ay.get("guna","N/A")), unsafe_allow_html=True)
+                        a3.markdown(ayur_box("Virya", ay.get("virya","N/A")), unsafe_allow_html=True)
+                        a4.markdown(ayur_box("Vipaka", ay.get("vipaka","N/A")), unsafe_allow_html=True)
                     st.markdown("#### 🧪 Benefits & Constituents")
                     bc1,bc2 = st.columns(2)
                     with bc1:

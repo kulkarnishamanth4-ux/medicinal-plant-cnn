@@ -124,6 +124,17 @@ def get_user_listings():
     if not sb or "user_id" not in st.session_state: return []
     return sb.table("listings").select("*").eq("seller_id", st.session_state["user_id"]).order("created_at", desc=True).execute().data or []
 
+def close_listing(listing_id):
+    sb = get_client()
+    if not sb or "user_id" not in st.session_state: return False
+    # Ensure the user only closes their own listing
+    try:
+        sb.table("listings").update({"status": "closed"}).eq("id", listing_id).eq("seller_id", st.session_state["user_id"]).execute()
+        return True
+    except Exception as e:
+        print(f"Error closing listing: {e}")
+        return False
+
 
 # --- CONVERSATION FUNCTIONS ---
 
